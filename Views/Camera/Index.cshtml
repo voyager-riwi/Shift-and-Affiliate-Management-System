@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Tomar Foticoo";
+}
+
+<h2>Tomar Fotasa</h2>
+
+<video id="video" width="320" height="240" autoplay></video>
+<canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+<br />
+<button id="capture">Capturar</button>
+
+<!-- mostramos la foto previewww-->
+<div>
+    <h3>Preview:</h3>
+    <img id="preview" width="320" height="240" style="border:1px solid #ccc;" />
+</div>
+
+<form id="uploadForm" method="post" enctype="multipart/form-data" asp-action="UploadPhoto">
+    <input type="hidden" name="photoBase64" id="photoBase64" />
+    <button type="submit">Subir Foto</button>
+</form>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureButton = document.getElementById('capture');
+    const photoInput = document.getElementById('photoBase64');
+    const preview = document.getElementById('preview');
+
+    // Acceso a la cámara
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => video.srcObject = stream)
+        .catch(err => console.error("Error: " + err));
+
+    // Capturar foto y mostrar preview
+    captureButton.addEventListener('click', () => {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/png"); 
+
+        // Guardar en el hidden input
+        photoInput.value = dataUrl;
+
+        // Mostrar preview
+        preview.src = dataUrl;
+    });
+</script>

@@ -1,0 +1,67 @@
+@{
+    // Usamos un layout simple o ninguno para la vista de kiosko
+    Layout = "_Layout"; // O null si quieres una página completamente en blanco
+    ViewData["Title"] = "Kiosko de Turnos";
+}
+
+<div style="text-align: center; margin-top: 100px;">
+    <h1>¡Bienvenido a EPS Voyager!</h1>
+    <p>Presione el botón para obtener su turno</p>
+    
+    <button id="btnPedirTurno" style="font-size: 2em; padding: 20px 40px;">
+        Obtener Turno
+    </button>
+    
+    <div id="mensajeTurno" style="font-size: 1.5em; margin-top: 20px;"></div>
+</div>
+
+@section Scripts {
+    <script>
+        // --- AQUÍ PEGAS EL CÓDIGO ---
+
+        const btn = document.getElementById('btnPedirTurno');
+        const mensajeDiv = document.getElementById('mensajeTurno');
+
+        // La función para abrir la ventana de impresión
+        function imprimirTiquete(ticketId) {
+            // Usamos la ruta del PrintController que creamos
+            const url = `/Print/Ticket/${ticketId}`;
+            window.open(url, '_blank', 'width=300,height=300');
+        }
+
+        // Agregamos el evento al botón
+        btn.addEventListener('click', async () => {
+            mensajeDiv.textContent = 'Generando su turno, por favor espere...';
+            btn.disabled = true;
+
+            try {
+                // Para esta prueba, asumimos que el afiliado que pide el turno es el #1
+                const affiliateId = 1;
+
+                // 1. Llama a tu API para crear el tiquete
+                const respuesta = await fetch(`/api/Tickets/${affiliateId}`, {
+                    method: 'POST'
+                });
+
+                if (!respuesta.ok) {
+                    throw new Error('Error del servidor al crear el tiquete.');
+                }
+
+                // 2. Lee los datos del nuevo tiquete desde la respuesta
+                const nuevoTiquete = await respuesta.json();
+
+                mensajeDiv.textContent = `¡Su turno es el ${nuevoTiquete.ticketCode}!`;
+
+                // 3. Llama a la función para imprimir
+                imprimirTiquete(nuevoTiquete.id);
+
+            } catch (error) {
+                console.error('Error al pedir el turno:', error);
+                mensajeDiv.textContent = 'No se pudo generar su turno. Por favor, intente de nuevo.';
+            } finally {
+                // Habilita el botón de nuevo después de 5 segundos para evitar spam
+                setTimeout(() => { btn.disabled = false; }, 5000);
+            }
+        });
+    </script>
+}
