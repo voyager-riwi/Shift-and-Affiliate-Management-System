@@ -24,7 +24,7 @@ public class Ticket
     // --- Relaciones y Claves Foráneas ---
 
     [Display(Name = "Afiliado")] 
-    public int AffiliateId { get; set; }
+    public int? AffiliateId { get; set; }
     public Affiliate Affiliate { get; set; }
     
     [Display(Name = "Puesto de Atención")]

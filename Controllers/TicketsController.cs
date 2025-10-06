@@ -1,20 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using System_EPS.Services;
+using System.Threading.Tasks;
 
 [ApiController]
-[Route("api/[controller]")] // Esto asigna la ruta /api/Tickets
+[Route("api/[controller]")]
 public class TicketsController : ControllerBase
 {
     private readonly ITicketService _ticketService;
 
-    // El constructor recibe el servicio de lógica gracias a la inyección de dependencias
     public TicketsController(ITicketService ticketService)
     {
         _ticketService = ticketService;
     }
 
-    // GET: /api/Tickets
-    // Devuelve la lista de tiquetes en espera (útil para la TV)
     [HttpGet]
     public async Task<IActionResult> GetWaitingTickets()
     {
@@ -22,23 +20,23 @@ public class TicketsController : ControllerBase
         return Ok(tickets);
     }
 
-    // POST: /api/Tickets
-    // Crea un nuevo tiquete (lo usará el kiosko)
-    [HttpPost("{affiliateId}")] 
-    public async Task<IActionResult> CreateTicket(int affiliateId)
+    [HttpGet("history/today")]
+    public async Task<IActionResult> GetTodaysHistory()
     {
-        if (affiliateId <= 0)
-        {
-            return BadRequest("El Id del afiliado no es válido.");
-        }
-        var ticket = await _ticketService.CreateNextTicketAsync(affiliateId);
+        var history = await _ticketService.GetTodaysHistoryAsync();
+        return Ok(history);
+    }
+
+    // ▼▼▼ MÉTODO CORREGIDO ▼▼▼
+    [HttpPost("{documentId?}")]
+    public async Task<IActionResult> CreateTicket(string documentId = null) // Se añade '= null' para hacerlo opcional
+    {
+        var ticket = await _ticketService.CreateNextTicketAsync(documentId);
         return Ok(ticket);
     }
 
-    // POST: /api/Tickets/next
-    // Llama al siguiente tiquete en la fila (lo usará el funcionario)
-    [HttpPost("next")]
-    public async Task<IActionResult> CallNextTicket([FromBody] int serviceDeskId)
+    [HttpPost("next/{serviceDeskId}")]
+    public async Task<IActionResult> CallNextTicket(int serviceDeskId)
     {
         if (serviceDeskId <= 0)
         {

@@ -1,67 +1,128 @@
 @{
-    // Usamos un layout simple o ninguno para la vista de kiosko
-    Layout = "_Layout"; // O null si quieres una página completamente en blanco
     ViewData["Title"] = "Kiosko de Turnos";
 }
 
-<div style="text-align: center; margin-top: 100px;">
-    <h1>¡Bienvenido a EPS Voyager!</h1>
-    <p>Presione el botón para obtener su turno</p>
+<div style="text-align: center; margin-top: 50px;">
     
-    <button id="btnPedirTurno" style="font-size: 2em; padding: 20px 40px;">
-        Obtener Turno
-    </button>
+    <div id="initialScreen">
+        <h1>Bienvenido a Salud Linux</h1>
+        <p>Por favor, seleccione una opción</p>
+        <button id="btnShowSearch" class="btn btn-primary btn-lg m-2" style="padding: 20px 40px;">Ingresar con Documento</button>
+        <button id="btnAnonymousTurn" class="btn btn-secondary btn-lg m-2" style="padding: 20px 40px;">Pedir Turno Anónimo</button>
+    </div>
+
+    <div id="searchSection" style="display: none;">
+        <p>Por favor, ingrese su número de documento:</p>
+        <input type="text" id="inputDocumento" style="font-size: 1.5em; padding: 10px;" />
+        <button id="btnBuscar" class="btn btn-success" style="font-size: 1.5em; padding: 10px;">Buscar</button>
+        <button id="btnVolver" class="btn btn-light" style="font-size: 1.5em; padding: 10px;">Volver</button>
+    </div>
+
+    <div id="ticketSection" style="display: none;">
+        <h2 id="welcomeMessage"></h2>
+        <button id="btnPedirTurno" style="font-size: 2em; padding: 20px 40px;">
+            Confirmar y Obtener Turno
+        </button>
+    </div>
     
     <div id="mensajeTurno" style="font-size: 1.5em; margin-top: 20px;"></div>
 </div>
 
 @section Scripts {
-    <script>
-        // --- AQUÍ PEGAS EL CÓDIGO ---
+<script>
+    const initialScreen = document.getElementById('initialScreen');
+    const searchSection = document.getElementById('searchSection');
+    const ticketSection = document.getElementById('ticketSection');
+    
+    const btnShowSearch = document.getElementById('btnShowSearch');
+    const btnAnonymousTurn = document.getElementById('btnAnonymousTurn');
+    const btnBuscar = document.getElementById('btnBuscar');
+    const btnVolver = document.getElementById('btnVolver');
+    const inputDocumento = document.getElementById('inputDocumento');
+    const btnPedirTurno = document.getElementById('btnPedirTurno');
 
-        const btn = document.getElementById('btnPedirTurno');
-        const mensajeDiv = document.getElementById('mensajeTurno');
+    const mensajeTurno = document.getElementById('mensajeTurno');
+    const welcomeMessage = document.getElementById('welcomeMessage');
 
-        // La función para abrir la ventana de impresión
-        function imprimirTiquete(ticketId) {
-            // Usamos la ruta del PrintController que creamos
-            const url = `/Print/Ticket/${ticketId}`;
-            window.open(url, '_blank', 'width=300,height=300');
+    let currentAffiliate = null;
+
+    // --- MANEJO DE VISTAS ---
+    btnShowSearch.addEventListener('click', () => {
+        initialScreen.style.display = 'none';
+        searchSection.style.display = 'block';
+    });
+
+    btnVolver.addEventListener('click', () => {
+        initialScreen.style.display = 'block';
+        searchSection.style.display = 'none';
+        inputDocumento.value = '';
+    });
+
+    // --- LÓGICA DE TURNOS ---
+    function imprimirTiquete(ticketId) {
+        const url = `/Print/Ticket/${ticketId}`;
+        window.open(url, '_blank', 'width=300,height=300');
+    }
+
+    async function generarTurno() {
+        if (currentAffiliate === null) return;
+
+        mensajeTurno.textContent = 'Generando su turno...';
+        btnPedirTurno.disabled = true;
+        btnAnonymousTurn.disabled = true;
+
+        try {
+            // Si el afiliado tiene ID, lo usa en la URL. Si no, la URL va sin nada.
+            const url = currentAffiliate.id ? `/api/Tickets/${currentAffiliate.documentId}` : '/api/Tickets';
+            const respuesta = await fetch(url, { method: 'POST' });
+
+            if (!respuesta.ok) throw new Error('Error del servidor al crear el tiquete.');
+
+            const nuevoTiquete = await respuesta.json();
+            mensajeTurno.textContent = `¡Su turno es el ${nuevoTiquete.ticketCode}!`;
+            imprimirTiquete(nuevoTiquete.id);
+
+        } catch (error) {
+            console.error('Error al pedir el turno:', error);
+            mensajeTurno.textContent = 'No se pudo generar su turno.';
+        } finally {
+            setTimeout(() => { location.reload(); }, 7000); // Recarga la página después de 7 segundos
         }
+    }
 
-        // Agregamos el evento al botón
-        btn.addEventListener('click', async () => {
-            mensajeDiv.textContent = 'Generando su turno, por favor espere...';
-            btn.disabled = true;
+    // Botón para turno anónimo
+    btnAnonymousTurn.addEventListener('click', () => {
+        currentAffiliate = { id: null, fullName: 'Visitante' };
+        generarTurno();
+    });
 
-            try {
-                // Para esta prueba, asumimos que el afiliado que pide el turno es el #1
-                const affiliateId = 1;
+    // Botón para pedir turno después de buscar
+    btnPedirTurno.addEventListener('click', generarTurno);
 
-                // 1. Llama a tu API para crear el tiquete
-                const respuesta = await fetch(`/api/Tickets/${affiliateId}`, {
-                    method: 'POST'
-                });
+    // Botón para buscar afiliado
+    btnBuscar.addEventListener('click', async () => {
+        const docId = inputDocumento.value;
+        if (!docId) { alert('Por favor, ingrese un documento.'); return; }
 
-                if (!respuesta.ok) {
-                    throw new Error('Error del servidor al crear el tiquete.');
-                }
-
-                // 2. Lee los datos del nuevo tiquete desde la respuesta
-                const nuevoTiquete = await respuesta.json();
-
-                mensajeDiv.textContent = `¡Su turno es el ${nuevoTiquete.ticketCode}!`;
-
-                // 3. Llama a la función para imprimir
-                imprimirTiquete(nuevoTiquete.id);
-
-            } catch (error) {
-                console.error('Error al pedir el turno:', error);
-                mensajeDiv.textContent = 'No se pudo generar su turno. Por favor, intente de nuevo.';
-            } finally {
-                // Habilita el botón de nuevo después de 5 segundos para evitar spam
-                setTimeout(() => { btn.disabled = false; }, 5000);
+        try {
+            const response = await fetch(`/api/Affiliates/ByDocument/${docId}`);
+            if (response.status === 404) {
+                alert('Afiliado no encontrado. Se generará un turno como anónimo.');
+                currentAffiliate = { id: null, fullName: 'Visitante', documentId: docId };
+            } else if (!response.ok) {
+                throw new Error('Error del servidor.');
+            } else {
+                currentAffiliate = await response.json();
             }
-        });
-    </script>
+            
+            welcomeMessage.textContent = `Hola, ${currentAffiliate.fullName}`;
+            searchSection.style.display = 'none';
+            ticketSection.style.display = 'block';
+
+        } catch (error) {
+            console.error('Error buscando afiliado:', error);
+            alert('No se pudo completar la búsqueda.');
+        }
+    });
+</script>
 }

@@ -1,0 +1,79 @@
+:root {
+    --primary-color: #0077b6;
+    --secondary-color: #00b4d8;
+    --light-blue: #caf0f8;
+    --success-color: #06d6a0;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+body {
+    background-color: #f0f8ff;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 25px;
+}
+
+.card-header {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 0;
+}
+
+.card-atendiendo {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 150, 199, 0.3);
+}
+
+.turno-actual {
+    font-size: 3.5rem;
+    font-weight: 700;
+}
+
+.btn-llamar {
+    background-color: var(--success-color);
+    border: none;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+}
+.btn-llamar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(6, 214, 160, 0.3);
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.lista-espera-container, .table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.list-group-item {
+    border-radius: 10px !important;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.table thead th {
+    background: var(--gradient-primary);
+    color: white;
+    position: sticky;
+    top: 0;
+}

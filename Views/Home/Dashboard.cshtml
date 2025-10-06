@@ -1,0 +1,74 @@
+@{
+ViewData["Title"] = "Panel de Control";
+}
+
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-desktop me-2"></i>Panel de Control</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="selectServiceDesk" class="form-label fw-bold">Puesto de atención:</label>
+                        <select id="selectServiceDesk" class="form-select">
+                            @if (ViewBag.ServiceDesks != null)
+                            {
+                            @foreach (var desk in ViewBag.ServiceDesks)
+                            {
+                            <option value="@desk.Id">@desk.DeskNumber</option>
+                            }
+                            }
+                        </select>
+                    </div>
+                    <button id="btnLlamarSiguiente" class="btn btn-llamar w-100 text-white">
+                        <i class="fas fa-phone-volume me-2"></i>Llamar Siguiente
+                    </button>
+                    <div class="card-atendiendo text-center">
+                        <h5><i class="fas fa-user-nurse me-2"></i>Atendiendo Ahora</h5>
+                        <div id="turnoActual" class="turno-actual">- - -</div>
+                        <div id="afiliadoActual" class="afiliado-actual">Esperando...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <h3 class="section-title"><i class="fas fa-users me-2"></i>Fila de Espera</h3>
+            <div class="card lista-espera-container">
+                <ul id="listaEspera" class="list-group list-group-flush p-3">
+                    <li class="list-group-item text-muted">Cargando...</li>
+                </ul>
+            </div>
+
+            <h3 class="section-title mt-4"><i class="fas fa-history me-2"></i>Historial de Hoy</h3>
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>Turno</th>
+                            <th>Hora Atención</th>
+                            <th>Afiliado</th>
+                        </tr>
+                        </thead>
+                        <tbody id="historialHoy">
+                        <tr><td colspan="3" class="text-center text-muted">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+
+<script src="~/js/dashboard.js"></script>
+}
+
