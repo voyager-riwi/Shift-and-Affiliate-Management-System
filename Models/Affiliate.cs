@@ -22,4 +22,7 @@ public class Affiliate
 
     //Un afiliado puede tener una colección de tiquetes.
     public ICollection<Ticket> Tickets { get; set; }
+    
+    public string PhotoBase64 { get; set; } // Guardará la imagen como texto
+    
 }

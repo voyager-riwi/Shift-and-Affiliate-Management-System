@@ -12,9 +12,8 @@ namespace System_EPS.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context; // <-- AÑADIDO: Campo para el contexto de la BD
+    private readonly ApplicationDbContext _context;
 
-    // CAMBIO: El constructor ahora también pide el ApplicationDbContext
     public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
     {
         _logger = logger;
@@ -36,19 +35,24 @@ public class HomeController : Controller
         return View();
     }
     
-    // CAMBIO: El método ahora es 'async' y carga los datos para el selector
     public async Task<IActionResult> Dashboard()
     {
-        // Busca en la BD todos los puestos de atención que estén abiertos
         var serviceDesks = await _context.ServiceDesks
             .Where(d => d.Status == DeskStatus.Open)
             .ToListAsync();
             
-        // Pasa la lista de puestos a la vista para construir el dropdown
         ViewBag.ServiceDesks = serviceDesks;
 
         return View();
     }
+
+    // ▼▼▼ MÉTODO CLAVE ▼▼▼
+    // Asegúrate de que este método exista.
+    public IActionResult RegisterAffiliate()
+    {
+        return View();
+    }
+    // ▲▲▲ FIN DEL MÉTODO CLAVE ▲▲▲
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

@@ -2,6 +2,10 @@
 POST http://localhost:5031/api/Tickets/1
 
 
+### PRUEBA DE FUEGO: Endpoint súper simple
+POST http://localhost:5031/api/Affiliates/test
+
+
 ### 2. Obtener todos los tiquetes en espera (para la TV)
 GET http://localhost:5031/api/Tickets
 
