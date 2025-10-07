@@ -1,66 +1,128 @@
+@model System_EPS.Models.ServiceDesk 
+@* Asegúrate de que este modelo/ViewBag coincida con lo que tu HomeController.Dashboard retorna *@
+
 @{
-ViewData["Title"] = "Panel de Control";
+    ViewData["Title"] = "Panel de Control";
 }
 
 @section Styles {
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/dashboard.css" />
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Fondo muy claro */
+        }
+        .card-atendiendo {
+            /* Estilo para la caja de atención actual */
+            background-color: #e0f2f1; /* Verde menta claro */
+            border: 2px solid #2dd4bf;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .turno-actual {
+            /* Estilo para el código del turno grande */
+            font-size: 2.5rem; /* 40px */
+            font-weight: 800;
+            color: #0d9488; /* Verde oscuro del turno */
+            margin-bottom: 0.5rem;
+        }
+        .afiliado-actual {
+            color: #4b5563;
+            font-weight: 600;
+        }
+        .btn-llamar {
+            /* Estilo para el botón principal de acción */
+            background-color: #3b82f6; /* Azul primario */
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+        }
+        .btn-llamar:hover {
+            background-color: #2563eb; /* Azul oscuro al pasar el mouse */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.5);
+        }
+    </style>
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header"><i class="fas fa-desktop me-2"></i>Panel de Control</div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="selectServiceDesk" class="form-label fw-bold">Puesto de atención:</label>
-                        <select id="selectServiceDesk" class="form-select">
+<div class="container mx-auto p-4 md:p-8">
+    <div class="flex flex-wrap -mx-4">
+        
+        <!-- Columna de Control (Izquierda) -->
+        <div class="w-full lg:w-1/3 px-4 mb-6 lg:mb-0">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center">
+                    <i class="fas fa-desktop me-3"></i> Panel de Operación
+                </div>
+                <div class="p-6">
+                    
+                    <!-- Selector de Puesto -->
+                    <div class="mb-6">
+                        <label for="selectServiceDesk" class="block text-gray-700 text-sm font-bold mb-2">
+                            <i class="fas fa-cash-register me-1"></i> Puesto de Atención:
+                        </label>
+                        <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
                             @if (ViewBag.ServiceDesks != null)
                             {
-                            @foreach (var desk in ViewBag.ServiceDesks)
-                            {
-                            <option value="@desk.Id">@desk.DeskNumber</option>
-                            }
+                                @foreach (var desk in ViewBag.ServiceDesks)
+                                {
+                                    <option value="@desk.Id">@desk.DeskNumber</option>
+                                }
                             }
                         </select>
                     </div>
-                    <button id="btnLlamarSiguiente" class="btn btn-llamar w-100 text-white">
-                        <i class="fas fa-phone-volume me-2"></i>Llamar Siguiente
+                    
+                    <!-- Botón Principal -->
+                    <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold">
+                        <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
                     </button>
-                    <div class="card-atendiendo text-center">
-                        <h5><i class="fas fa-user-nurse me-2"></i>Atendiendo Ahora</h5>
+                    
+                    <!-- Atendiendo Ahora -->
+                    <div class="card-atendiendo">
+                        <h5 class="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center">
+                            <i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora
+                        </h5>
                         <div id="turnoActual" class="turno-actual">- - -</div>
-                        <div id="afiliadoActual" class="afiliado-actual">Esperando...</div>
+                        <div id="afiliadoActual" class="afiliado-actual">Esperando turno...</div>
                     </div>
+                    
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <h3 class="section-title"><i class="fas fa-users me-2"></i>Fila de Espera</h3>
-            <div class="card lista-espera-container">
-                <ul id="listaEspera" class="list-group list-group-flush p-3">
-                    <li class="list-group-item text-muted">Cargando...</li>
+        <!-- Columna de Listas (Derecha) -->
+        <div class="w-full lg:w-2/3 px-4">
+            
+            <!-- Fila de Espera -->
+            <h3 class="text-2xl font-extrabold text-gray-800 mb-3 section-title flex items-center">
+                <i class="fas fa-users me-3 text-blue-600"></i> Fila de Espera
+            </h3>
+            <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6 overflow-hidden">
+                <ul id="listaEspera" class="divide-y divide-gray-200">
+                    <li class="p-4 text-gray-500 font-medium text-center">Cargando...</li>
                 </ul>
             </div>
 
-            <h3 class="section-title mt-4"><i class="fas fa-history me-2"></i>Historial de Hoy</h3>
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>Turno</th>
-                            <th>Hora Atención</th>
-                            <th>Afiliado</th>
-                        </tr>
-                        </thead>
-                        <tbody id="historialHoy">
-                        <tr><td colspan="3" class="text-center text-muted">Cargando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Historial de Hoy -->
+            <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 section-title flex items-center">
+                <i class="fas fa-history me-3 text-indigo-600"></i> Historial de Hoy
+            </h3>
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turno</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Atención</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afiliado</th>
+                    </tr>
+                    </thead>
+                    <tbody id="historialHoy" class="bg-white divide-y divide-gray-200">
+                        <tr><td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Cargando...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -68,7 +130,6 @@ ViewData["Title"] = "Panel de Control";
 
 @section Scripts {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
-
+{{/* Asume que aquí irá tu script dashboard.js corregido */}}
 <script src="~/js/dashboard.js"></script>
 }
-

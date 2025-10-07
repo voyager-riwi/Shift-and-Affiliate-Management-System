@@ -5,7 +5,8 @@ public enum TicketStatus
     Waiting,  
     Called,    
     Served,    
-    Cancelled  
+    Cancelled,
+    InService
 }
 
 public enum DeskStatus

@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - System EPS</title>
+    
+    @{
+        // Deshabilita el layout principal
+        Layout = null; 
+        ViewData["Title"] = "Turnero Digital";
+    }
+
+    <!-- Recursos de diseño (Tailwind y Fuentes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos específicos y animaciones -->
+    <style>
+        body {
+            /* Fondo blanco para replicar el estilo de la imagen */
+            background-color: #f8fafc; /* Tailwind gray-50 */
+            color: #1e293b; 
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+        /* Colores Morados/Índigo consistentes con la referencia */
+        .header-bg {
+            background-color: #5b21b6; /* Tailwind Indigo-700 / Deep Purple */
+        }
+        
+        /* Animación de Parpadeo para la fila que está siendo llamada */
+        @@keyframes calling-flash {
+            0%, 100% { background-color: #a78bfa; } /* Indigo-300 */
+            50% { background-color: #c4b5fd; } /* Indigo-200 */
+        }
+        
+        .calling-row-effect {
+            animation: calling-flash 0.8s ease-in-out infinite alternate;
+        }
+
+        /* Estilo para los códigos de turno (grande y condensado) */
+        .turno-code {
+            font-family: 'Oswald', sans-serif; 
+            font-size: 5vw; 
+            font-weight: 900;
+            letter-spacing: -0.05em;
+        }
+
+        /* Estilo para el puesto de atención (similar al color azul de la referencia) */
+        .puesto-box {
+            background-color: #38bdf8; /* Tailwind Sky-400 */
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 3vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+    <div class="flex flex-col h-full bg-white">
+        
+        <!-- HEADER Púrpura/Indigo (Superior) -->
+        <header class="header-bg text-white p-4 flex justify-between items-center shadow-lg">
+            <h1 class="text-3xl font-extrabold tracking-wider">SALUD LINUX</h1>
+            <h2 class="text-xl font-medium">Turnos de Espera</h2>
+        </header>
+
+        <!-- CONTENEDOR PRINCIPAL (GRID 1:4) -->
+        <div class="flex-grow grid grid-cols-5 p-4 gap-4 overflow-hidden">
+            
+            <!-- COLUMNA 1: PUESTO DE LLAMADA / RINGOW (Ocupa 1 de 5 columnas) -->
+            <div id="ringowBox" class="col-span-1 p-4 flex flex-col justify-start space-y-4">
+                <p class="text-gray-600 text-sm font-semibold mb-2">Puesto Llamando Ahora:</p>
+                <!-- La caja grande azul (RINGOW) -->
+                <div class="puesto-box shadow-xl h-48">
+                    <div id="mainDeskNumber">M1</div>
+                </div>
+            </div>
+
+            <!-- COLUMNA 2: TABLA DE TURNOS (Ocupa 4 de 5 columnas) -->
+            <div class="col-span-4 flex flex-col space-y-2">
+
+                <!-- CABECERA DE LA TABLA (Misma altura que el header original) -->
+                <div class="grid grid-cols-4 gap-2 bg-indigo-600 text-white p-3 rounded-t-lg font-bold text-lg shadow-md">
+                    <div class="col-span-1">TURNO</div>
+                    <div class="col-span-2">USUARIO / IDENTIFICACIÓN</div>
+                    <div class="col-span-1 text-center">PUESTO</div>
+                </div>
+
+                <!-- FILA ACTIVA (Turno que está siendo llamado) -->
+                <div id="activeRow" class="grid grid-cols-4 gap-2 calling-row-effect bg-indigo-300 text-indigo-900 p-3 rounded-lg shadow-lg">
+                    <div id="mainTurnoCode" class="col-span-1 turno-code">AA5</div>
+                    <div id="mainAffiliate" class="col-span-2 flex flex-col text-sm font-medium">
+                        <span class="font-bold">Identificación: </span>
+                        <span>102365489432</span>
+                    </div>
+                    <div id="activeDesk" class="col-span-1 text-center font-extrabold text-3xl">M1</div>
+                </div>
+                
+                <!-- HISTORIAL / TURNOS ANTERIORES (Insertados por JS) -->
+                <div id="historyList" class="flex flex-col space-y-2">
+                    <!-- Filas insertadas aquí -->
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de SignalR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/queueHub") 
+            .withAutomaticReconnect()
+            .build();
+            
+        // Referencias a los elementos principales
+        const activeRow = document.getElementById("activeRow");
+        const mainTurnoCode = document.getElementById("mainTurnoCode");
+        const mainDeskNumber = document.getElementById("mainDeskNumber");
+        const mainAffiliate = document.getElementById("mainAffiliate");
+        const activeDesk = document.getElementById("activeDesk");
+        const historyList = document.getElementById("historyList");
+
+        // Datos iniciales para que la pantalla no esté vacía
+        mainTurnoCode.textContent = '---';
+        mainDeskNumber.textContent = '---';
+        activeDesk.textContent = '---';
+        mainAffiliate.innerHTML = '<span class="text-gray-500">Esperando llamada...</span>';
+
+
+        connection.on("ReceiveNewCall", (ticketCode, deskNumber, affiliateName = 'Identificación: N/A') => {
+            
+            // --- PASO 1: Mover el Turno Actual (Anterior) al Historial ---
+            
+            // Capturar el contenido de la fila activa antes de la actualización
+            const previousCode = mainTurnoCode.textContent;
+            const previousAffiliateHtml = mainAffiliate.innerHTML;
+            const previousDesk = activeDesk.textContent;
+
+
+            if (previousCode !== '---') {
+                const prevItem = document.createElement('div');
+                // Estilo para fila anterior (fondo gris suave)
+                prevItem.className = 'history-item-new grid grid-cols-4 gap-2 bg-gray-200 text-gray-700 p-3 rounded-lg opacity-80';
+                prevItem.innerHTML = `
+                    <div class="col-span-1 turno-code">${previousCode}</div>
+                    <div class="col-span-2 flex flex-col text-sm font-medium">${previousAffiliateHtml}</div>
+                    <div class="col-span-1 text-center font-extrabold text-3xl">${previousDesk}</div>
+                `;
+                
+                // Inserta el turno anterior al inicio del historial
+                historyList.insertBefore(prevItem, historyList.firstChild);
+                
+                // Limitar el historial visible a 3 o 4 filas después de la activa
+                while (historyList.children.length > 3) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+            
+            // --- PASO 2: Actualizar la Fila Activa con la Nueva Llamada ---
+            
+            // 2.1 Activar animación de "llamando" en la fila activa
+            activeRow.classList.add('calling-row-effect');
+            
+            // 2.2 Detener la animación después de 1.5 segundos
+            setTimeout(() => { 
+                activeRow.classList.remove('calling-row-effect'); 
+            }, 1500);
+
+            // 2.3 Actualizar contenido
+            mainTurnoCode.textContent = ticketCode;
+            mainDeskNumber.textContent = deskNumber; // Para el bloque RINGOW
+            activeDesk.textContent = deskNumber; // Para la columna PUESTO
+            
+            // Reconstruir el texto de identificación del usuario
+            mainAffiliate.innerHTML = `
+                <span class="font-bold">Usuario:</span> 
+                <span class="text-xs">Afiliado: ${affiliateName}</span>
+            `;
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+    </script>
+</body>
+</html>

@@ -9,20 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const historialBody = document.getElementById('historialHoy');
 
     // --- Conexión a SignalR ---
+    // CORRECCIÓN 1: Conexión al Hub de la cola mapeado en Program.cs
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/ticketHub")
+        .withUrl("/queueHub")
         .build();
 
+    // Evento para forzar la recarga cuando hay cambios en otros puestos (se debe emitir desde el servidor)
     connection.on("UpdateWaitingList", function () {
         console.log("SignalR: Recibida actualización de listas.");
         cargarFilaDeEspera();
         cargarHistorial();
     });
 
-    connection.on("TicketCalled", function (ticketCode, serviceDeskId) {
-        console.log(`SignalR: Turno ${ticketCode} llamado a la caja ${serviceDeskId}.`);
-        turnoActualElem.textContent = ticketCode;
-        afiliadoActualElem.textContent = `Llamando al afiliado...`;
+    // CORRECCIÓN 2: El Dashboard NO necesita el evento de llamado si actualiza por la respuesta AJAX.
+    // Lo mantenemos por si el Dashboard quiere escuchar llamados de OTROS puestos.
+    connection.on("ReceiveNewCall", function (ticketCode, deskNumber) {
+        console.log(`SignalR: Turno ${ticketCode} llamado al puesto ${deskNumber} (Por otro operador).`);
+        // Llama a las funciones para refrescar las listas si es un llamado que no hice yo.
+        cargarFilaDeEspera();
+        cargarHistorial();
     });
 
     connection.start().then(function () {
@@ -48,19 +53,33 @@ document.addEventListener('DOMContentLoaded', () => {
         afiliadoActualElem.textContent = 'Buscando siguiente turno...';
 
         try {
-            const response = await fetch(`/api/Tickets/next/${serviceDeskId}`, {
-                method: 'POST'
+            // CORRECCIÓN 3: Llamada al QueueController que tiene la lógica de SignalR
+            const response = await fetch(`/Queue/CallNext`, {
+                method: 'POST',
+                // Debe usar URLSearchParams para enviar datos como FromForm
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `serviceDeskId=${serviceDeskId}`
             });
 
             if (response.status === 404) {
+                const error = await response.json();
                 turnoActualElem.textContent = '---';
-                afiliadoActualElem.textContent = 'No hay tiquetes en espera.';
+                afiliadoActualElem.textContent = error.message; // Muestra el mensaje del servidor
             } else if (!response.ok) {
-                throw new Error(`Error del servidor: ${response.status}`);
+                const error = await response.json();
+                throw new Error(`Error del servidor: ${error.message || response.statusText}`);
             } else {
+                // CORRECCIÓN 4: Usar la respuesta JSON del servidor para actualizar la UI local
                 const calledTicket = await response.json();
-                console.log(`API: Tiquete ${calledTicket.ticketCode} llamado.`);
-                // La UI se actualiza gracias a los eventos de SignalR
+
+                turnoActualElem.textContent = calledTicket.ticketCode;
+                afiliadoActualElem.textContent = calledTicket.afiliado;
+
+                console.log(`API: Tiquete ${calledTicket.ticketCode} llamado. Señal enviada.`);
+
+                // Forzar una recarga visual de las listas inmediatamente (aunque SignalR también lo hará)
+                cargarFilaDeEspera();
+                cargarHistorial();
             }
 
         } catch (error) {
@@ -68,11 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
             turnoActualElem.textContent = 'Error';
             afiliadoActualElem.textContent = 'Fallo al llamar turno.';
         } finally {
-            setTimeout(() => { btnLlamar.disabled = false; }, 2000);
+            // Habilitar el botón después de un breve retraso para evitar doble clic
+            setTimeout(() => { btnLlamar.disabled = false; }, 1000);
         }
     });
 
-    // --- Funciones de Carga de Datos ---
+    // --- Funciones de Carga de Datos (Permanecen sin cambios estructurales) ---
+
+    // (Tu código de cargarFilaDeEspera y cargarHistorial va aquí, no necesita cambios)
+
     async function cargarFilaDeEspera() {
         try {
             const response = await fetch('/api/Tickets');
@@ -111,7 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 tickets.forEach(ticket => {
                     const tr = document.createElement('tr');
-                    const horaAtencion = ticket.servedAt ? new Date(ticket.servedAt).toLocaleTimeString('es-CO') : 'N/A';
+                    // Cambiado de 'es-CO' a 'es-ES' por mayor compatibilidad, puedes ajustarlo si necesitas el formato de Colombia.
+                    const horaAtencion = ticket.servedAt ? new Date(ticket.servedAt).toLocaleTimeString('es-ES') : 'N/A';
 
                     // CORRECCIÓN: Si el afiliado es nulo, muestra 'Anónimo'
                     const affiliateName = ticket.affiliate ? ticket.affiliate.fullName : 'Anónimo';

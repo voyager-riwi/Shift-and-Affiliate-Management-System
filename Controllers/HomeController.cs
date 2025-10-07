@@ -12,9 +12,9 @@ namespace System_EPS.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context; // <-- AÑADIDO: Campo para el contexto de la BD
+    private readonly ApplicationDbContext _context;
 
-    // CAMBIO: El constructor ahora también pide el ApplicationDbContext
+    // El constructor recibe ILogger y ApplicationDbContext
     public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
     {
         _logger = logger;
@@ -36,7 +36,7 @@ public class HomeController : Controller
         return View();
     }
     
-    // CAMBIO: El método ahora es 'async' y carga los datos para el selector
+    // Acción para cargar el panel de control del operador
     public async Task<IActionResult> Dashboard()
     {
         // Busca en la BD todos los puestos de atención que estén abiertos
@@ -47,6 +47,13 @@ public class HomeController : Controller
         // Pasa la lista de puestos a la vista para construir el dropdown
         ViewBag.ServiceDesks = serviceDesks;
 
+        return View();
+    }
+
+    // NUEVA ACCIÓN: Carga la pantalla del turnero (Display Board)
+    // Se accede en /Home/TurnDisplay
+    public IActionResult TurnDisplay()
+    {
         return View();
     }
 

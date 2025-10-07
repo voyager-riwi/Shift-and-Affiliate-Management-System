@@ -2,7 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using System_EPS.Data;
 using System_EPS.Hubs;
 using System_EPS.Services;
-using System.Text.Json.Serialization; // <-- AÑADIDO: Necesario para la opción de JSON
+using System.Text.Json.Serialization;
+
+// Importante: La clase TicketService y TicketsHub deben existir.
+// Si TicketsHub ya existe, puedes renombrarlo a QueueHub o usarlo.
+// Aquí asumiremos que debemos usar QueueHub para la lógica de cola.
 
 // Compatibilidad con Timestamps de Npgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -12,7 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
 // --- SECCIÓN DE REGISTRO DE SERVICIOS ---
 
 // Registra los controladores y vistas, y configura la serialización de JSON
-// para ignorar los bucles de referencias.
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -49,12 +52,13 @@ app.UseAuthorization();
 // Mapea los API controllers para que estén disponibles en rutas como /api/Tickets
 app.MapControllers();
 
-// Mapea el Hub de SignalR a una ruta específica (/ticketHub)
-app.MapHub<TicketsHub>("/ticketHub"); // <-- CORREGIDO: Nombre en singular 'TicketHub'
-
 // Mapea la ruta por defecto para las vistas (MVC)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// CORRECCIÓN VITAL: Mapea el Hub de la cola (QueueHub) a la ruta /queueHub
+// Esto coincide con el IHubContext<QueueHub> del controlador y el JS de la vista.
+app.MapHub<QueueHub>("/queueHub"); 
 
 app.Run();
