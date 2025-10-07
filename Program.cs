@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System_EPS.Data;
 using System_EPS.Hubs;
 using System_EPS.Services;
-using System.Text.Json.Serialization; // <-- AÑADIDO: Necesario para la opción de JSON
+using System.Text.Json.Serialization;
 
 // Compatibilidad con Timestamps de Npgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -12,11 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 // --- SECCIÓN DE REGISTRO DE SERVICIOS ---
 
 // Registra los controladores y vistas, y configura la serialización de JSON
-// para ignorar los bucles de referencias.
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
+        // Ignora bucles de referencias circulares
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        
+        // Ignora propiedades con valor null al serializar (AÑADIDO)
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        
+        // Opcional: Hace que los nombres de propiedades sean case-insensitive
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
 // Registra el DbContext para la conexión a la base de datos
@@ -50,7 +56,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Mapea el Hub de SignalR a una ruta específica (/ticketHub)
-app.MapHub<TicketsHub>("/ticketHub"); // <-- CORREGIDO: Nombre en singular 'TicketHub'
+app.MapHub<TicketsHub>("/ticketHub");
 
 // Mapea la ruta por defecto para las vistas (MVC)
 app.MapControllerRoute(

@@ -1,6 +1,6 @@
-// En la carpeta: Models/Affiliate.cs
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace System_EPS.Models;
 
@@ -9,20 +9,23 @@ public class Affiliate
     public int Id { get; set; }
 
     [Display(Name = "Nombre Completo")] 
-    public string FullName { get; set; }
+    [Required(ErrorMessage = "El nombre completo es requerido")]
+    public string FullName { get; set; } = string.Empty;
 
     [Display(Name = "Documento")]
-    public string DocumentId { get; set; }
+    [Required(ErrorMessage = "El documento es requerido")]
+    public string DocumentId { get; set; } = string.Empty;
 
     [Display(Name = "Correo Electrónico")] 
-    public string Email { get; set; }
+    public string? Email { get; set; }
     
     [Display(Name = "Número de Teléfono")] 
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
-    //Un afiliado puede tener una colección de tiquetes.
-    public ICollection<Ticket> Tickets { get; set; }
+    // Ignora esta propiedad al serializar/deserializar JSON
+    [JsonIgnore]
+    public ICollection<Ticket>? Tickets { get; set; }
     
-    public string PhotoBase64 { get; set; } // Guardará la imagen como texto
-    
+    [Display(Name = "Foto")]
+    public string? PhotoBase64 { get; set; }
 }

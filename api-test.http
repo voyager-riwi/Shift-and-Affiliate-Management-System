@@ -1,17 +1,17 @@
 ### 1. Crear un nuevo tiquete para el afiliado con Id = 1
-POST http://localhost:5031/api/Tickets/1
+POST http://localhost:5258/api/Tickets/1
 
 
 ### PRUEBA DE FUEGO: Endpoint súper simple
-POST http://localhost:5031/api/Affiliates/test
+POST http://localhost:5258/api/Affiliates/test
 
 
 ### 2. Obtener todos los tiquetes en espera (para la TV)
-GET http://localhost:5031/api/Tickets
+GET http://localhost:5258/api/Tickets
 
 
 ### 3. Llamar al siguiente tiquete (simulando desde el puesto de atención #2)
-POST http://localhost:5031/api/Tickets/next
+POST http://localhost:5258/api/Tickets/next
 Content-Type: application/json
 
 2

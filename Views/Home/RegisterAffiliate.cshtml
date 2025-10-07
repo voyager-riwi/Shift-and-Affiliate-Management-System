@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Registro de Nuevo Afiliado";
+ViewData["Title"] = "Registro de Nuevo Afiliado";
 }
 
 <div class="container mt-4">
@@ -39,7 +39,7 @@
         </div>
         <hr class="my-4">
         <div class="d-grid">
-            <button type="submit" class="btn btn-primary btn-lg">Guardar Afiliado</button>
+            <button type="button" id="btnGuardarAfiliado" class="btn btn-primary btn-lg">Guardar Afiliado</button>
         </div>
     </form>
 </div>
@@ -53,27 +53,28 @@
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
         const preview = document.getElementById('preview');
-        const registerForm = document.getElementById('registerForm');
+        const saveButton = document.getElementById('btnGuardarAfiliado');
         let photoBase64 = null;
 
+        // Iniciar la cámara
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => { video.srcObject = stream; })
             .catch(err => {
                 console.error("Error al acceder a la cámara: ", err);
-                alert("No se pudo acceder a la cámara.");
+                alert("No se pudo acceder a la cámara. Verifique los permisos.");
             });
 
+        // Capturar la foto
         captureButton.addEventListener('click', () => {
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext('2d'); // <-- CORRECCIÓN: Era 'd', debe ser '2d'
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL('image/png');
             preview.src = dataUrl;
             photoBase64 = dataUrl;
         });
 
-        registerForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
+        // Lógica para guardar el afiliado
+        saveButton.addEventListener('click', async () => {
             if (!photoBase64) {
                 alert("Por favor, capture una foto antes de guardar.");
                 return;
@@ -88,7 +89,6 @@
             };
 
             try {
-                // LA LÍNEA MÁS IMPORTANTE DEL PROYECTO
                 const response = await fetch('/api/Affiliates', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -98,11 +98,11 @@
                 if (!response.ok) {
                     throw new Error(`Error del servidor: ${response.status}`);
                 }
-                
+
                 const nuevoAfiliado = await response.json();
                 alert(`¡Afiliado guardado con éxito! Id: ${nuevoAfiliado.id}`);
-                
-                registerForm.reset();
+
+                document.getElementById('registerForm').reset();
                 preview.src = '';
                 photoBase64 = null;
 
