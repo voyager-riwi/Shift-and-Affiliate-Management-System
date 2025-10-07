@@ -11,6 +11,18 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* Estilos del Sidebar */
+        .sidebar {
+            /* Fija el sidebar y lo hace ocupar toda la altura */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 20; /* Elevado para estar sobre el contenido */
+            width: 16rem; /* Ancho fijo para la barra lateral (w-64 en Tailwind) */
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6; /* Fondo muy claro */
@@ -48,84 +60,120 @@
     </style>
 }
 
-<div class="container mx-auto p-4 md:p-8">
-    <div class="flex flex-wrap -mx-4">
-        
-        <!-- Columna de Control (Izquierda) -->
-        <div class="w-full lg:w-1/3 px-4 mb-6 lg:mb-0">
-            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
-                <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center">
-                    <i class="fas fa-desktop me-3"></i> Panel de Operación
-                </div>
-                <div class="p-6">
-                    
-                    <!-- Selector de Puesto -->
-                    <div class="mb-6">
-                        <label for="selectServiceDesk" class="block text-gray-700 text-sm font-bold mb-2">
-                            <i class="fas fa-cash-register me-1"></i> Puesto de Atención:
-                        </label>
-                        <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
-                            @if (ViewBag.ServiceDesks != null)
-                            {
-                                @foreach (var desk in ViewBag.ServiceDesks)
-                                {
-                                    <option value="@desk.Id">@desk.DeskNumber</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    
-                    <!-- Botón Principal -->
-                    <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold">
-                        <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
-                    </button>
-                    
-                    <!-- Atendiendo Ahora -->
-                    <div class="card-atendiendo">
-                        <h5 class="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center">
-                            <i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora
-                        </h5>
-                        <div id="turnoActual" class="turno-actual">- - -</div>
-                        <div id="afiliadoActual" class="afiliado-actual">Esperando turno...</div>
-                    </div>
-                    
-                </div>
-            </div>
+<div class="flex min-h-screen bg-gray-50">
+
+    <aside class="sidebar bg-gray-800 text-white p-4">
+        <div class="text-2xl font-extrabold text-blue-400 mb-8 pt-2 border-b border-gray-700 pb-4">
+            <i class="fas fa-heartbeat mr-2"></i> System EPS
         </div>
 
-        <!-- Columna de Listas (Derecha) -->
-        <div class="w-full lg:w-2/3 px-4">
+        <nav>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos de Acceso Rápido</h3>
             
-            <!-- Fila de Espera -->
-            <h3 class="text-2xl font-extrabold text-gray-800 mb-3 section-title flex items-center">
-                <i class="fas fa-users me-3 text-blue-600"></i> Fila de Espera
-            </h3>
-            <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6 overflow-hidden">
-                <ul id="listaEspera" class="divide-y divide-gray-200">
-                    <li class="p-4 text-gray-500 font-medium text-center">Cargando...</li>
-                </ul>
-            </div>
+            <a href="@Url.Action("Kiosk", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-tablet-alt w-6 text-lg text-blue-400"></i>
+                <span class="ml-3 font-medium">Kiosko de Turnos</span>
+            </a>
 
-            <!-- Historial de Hoy -->
-            <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 section-title flex items-center">
-                <i class="fas fa-history me-3 text-indigo-600"></i> Historial de Hoy
-            </h3>
-            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turno</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Atención</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afiliado</th>
-                    </tr>
-                    </thead>
-                    <tbody id="historialHoy" class="bg-white divide-y divide-gray-200">
-                        <tr><td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Cargando...</td></tr>
-                    </tbody>
-                </table>
+            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
+                <i class="fas fa-desktop w-6 text-lg text-green-400"></i>
+                <span class="ml-3 font-medium">Panel de Control (Operador)</span>
+            </a>
+
+            <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-tv w-6 text-lg text-red-400"></i>
+                <span class="ml-3 font-medium">Pantalla de Llamadas (Público)</span>
+            </a>
+
+            <h3 class="text-xs uppercase font-semibold text-gray-400 mt-6 mb-3 ml-2">Administración EPS</h3>
+            
+            <a href="@Url.Action("Index", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-th-large w-6 text-lg"></i>
+                <span class="ml-3">Volver al Inicio</span>
+            </a>
+        </nav>
+        
+        <div class="mt-auto pt-6 border-t border-gray-700 text-center absolute bottom-0 w-full left-0 px-4 pb-4">
+            <p class="text-xs text-gray-500">Salud Linux &copy; 2025</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 ml-64"> <div class="container mx-auto">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-6">Panel de Control de Turnos</h1>
+            
+            <div class="flex flex-wrap -mx-4">
+                
+                <div class="w-full lg:w-1/3 px-4 mb-6 lg:mb-0">
+                    <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                        <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center">
+                            <i class="fas fa-desktop me-3"></i> Panel de Operación
+                        </div>
+                        <div class="p-6">
+                            
+                            <div class="mb-6">
+                                <label for="selectServiceDesk" class="block text-gray-700 text-sm font-bold mb-2">
+                                    <i class="fas fa-cash-register me-1"></i> Puesto de Atención:
+                                </label>
+                                <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                                    @if (ViewBag.ServiceDesks != null)
+                                    {
+                                        @foreach (var desk in ViewBag.ServiceDesks)
+                                        {
+                                            <option value="@desk.Id">@desk.DeskNumber</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            
+                            <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold">
+                                <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
+                            </button>
+                            
+                            <div class="card-atendiendo">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center">
+                                    <i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora
+                                </h5>
+                                <div id="turnoActual" class="turno-actual">- - -</div>
+                                <div id="afiliadoActual" class="afiliado-actual">Esperando turno...</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-2/3 px-4">
+                    
+                    <h3 class="text-2xl font-extrabold text-gray-800 mb-3 section-title flex items-center">
+                        <i class="fas fa-users me-3 text-blue-600"></i> Fila de Espera
+                    </h3>
+                    <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6 overflow-hidden">
+                        <ul id="listaEspera" class="divide-y divide-gray-200">
+                            <li class="p-4 text-gray-500 font-medium text-center">Cargando...</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 section-title flex items-center">
+                        <i class="fas fa-history me-3 text-indigo-600"></i> Historial de Hoy
+                    </h3>
+                    <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turno</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Atención</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afiliado</th>
+                            </tr>
+                            </thead>
+                            <tbody id="historialHoy" class="bg-white divide-y divide-gray-200">
+                                <tr><td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
+    </main>
 </div>
 
 @section Scripts {

@@ -8,71 +8,64 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-    .card-link {
-        transition: all 0.3s ease;
-        text-decoration: none;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Estilos del Sidebar (Mantenidos) */
+    .sidebar {
+        /* Fija el sidebar y lo hace ocupar toda la altura */
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        width: 16rem; /* Ancho fijo para la barra lateral (w-64 en Tailwind) */
+        height: 100vh;
+        overflow-y: auto; /* Para scroll si hay muchos elementos */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
-    .card-link:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    .icon-box {
-        width: 4rem;
-        height: 4rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.75rem;
-    }
+    /* El resto de estilos de las tarjetas (.card-link, .icon-box) se pueden eliminar
+       ya que las tarjetas ya no están en el contenido principal. */
 </style>
 
-<div class="container mx-auto p-4 md:p-10">
-    <div class="text-center mb-12">
-        <h1 class="text-5xl font-extrabold text-gray-900 mb-2">System EPS</h1>
-        <p class="text-xl text-gray-600">Bienvenido al Centro de Control de Turnos de Salud Linux</p>
-    </div>
+<div class="flex min-h-screen bg-gray-50">
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <aside class="sidebar bg-gray-800 text-white p-4">
+        <div class="text-2xl font-extrabold text-blue-400 mb-8 pt-2 border-b border-gray-700 pb-4">
+            <i class="fas fa-heartbeat mr-2"></i> System EPS
+        </div>
+
+        <nav>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos de Acceso Rápido</h3>
+            
+            <a href="@Url.Action("Kiosk", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-tablet-alt w-6 text-lg text-blue-400"></i>
+                <span class="ml-3 font-medium">Kiosko de Turnos</span>
+            </a>
+
+            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-desktop w-6 text-lg text-green-400"></i>
+                <span class="ml-3 font-medium">Panel de Control (Operador)</span>
+            </a>
+
+            <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+                <i class="fas fa-tv w-6 text-lg text-red-400"></i>
+                <span class="ml-3 font-medium">Pantalla de Llamadas (Público)</span>
+            </a>
+        </nav>
         
-        <!-- Módulo 1: Kiosko (Acceso Cliente) -->
-        <a href="@Url.Action("Kiosk", "Home")" class="card-link block bg-white border border-gray-200 rounded-xl p-6 text-gray-800">
-            <div class="flex flex-col items-center text-center h-full">
-                <div class="icon-box bg-blue-100 text-blue-600 mb-4">
-                    <i class="fas fa-tablet-alt fa-2x"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">Kiosko de Turnos</h2>
-                <p class="text-gray-500 flex-grow">Pantalla táctil para que los afiliados generen su tiquete rápidamente. Ideal para uso público.</p>
-                <span class="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700">Ir al Kiosko →</span>
-            </div>
-        </a>
+        <div class="mt-auto pt-6 border-t border-gray-700 text-center">
+            <p class="text-xs text-gray-500">Salud Linux &copy; 2025</p>
+        </div>
+    </aside>
 
-        <!-- Módulo 2: Dashboard (Acceso Operador) -->
-        <a href="@Url.Action("Dashboard", "Home")" class="card-link block bg-white border border-gray-200 rounded-xl p-6 text-gray-800">
-            <div class="flex flex-col items-center text-center h-full">
-                <div class="icon-box bg-green-100 text-green-600 mb-4">
-                    <i class="fas fa-desktop fa-2x"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">Panel de Control</h2>
-                <p class="text-gray-500 flex-grow">Herramienta para el personal de servicio. Permite llamar turnos y ver la cola de espera.</p>
-                <span class="mt-4 text-sm font-semibold text-green-600 hover:text-green-700">Abrir Panel de Control →</span>
+    <main class="flex-1 p-4 md:p-10 ml-64 flex items-center justify-center"> <div class="text-center max-w-2xl w-full">
+            <div class="icon-box mx-auto bg-blue-500 text-white mb-6 p-4 rounded-full w-20 h-20 shadow-lg">
+                <i class="fas fa-hospital-alt fa-3x"></i>
             </div>
-        </a>
-
-        <!-- Módulo 3: Turnero (Acceso Público) -->
-        <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="card-link block bg-white border border-gray-200 rounded-xl p-6 text-gray-800">
-            <div class="flex flex-col items-center text-center h-full">
-                <div class="icon-box bg-red-100 text-red-600 mb-4">
-                    <i class="fas fa-tv fa-2x"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">Pantalla de Llamadas</h2>
-                <p class="text-gray-500 flex-grow">Visualización a gran escala de los turnos activos. Diseñado para mostrar en monitores grandes.</p>
-                <span class="mt-4 text-sm font-semibold text-red-600 hover:text-red-700">Ver Turnero Digital →</span>
-            </div>
-        </a>
-    </div>
-
-    <div class="text-center mt-12 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-500">Desarrollado para la gestión eficiente de la atención en Salud Linux.</p>
-    </div>
+            <h1 class="text-6xl font-extrabold text-gray-900 mb-4">Bienvenido, Administrador</h1>
+            <p class="text-2xl text-gray-600 mb-10">
+                Usa la **barra lateral** para acceder a los módulos del sistema de turnos y a las herramientas de administración.
+            </p>
+            <p class="text-md text-gray-400">
+                Tu centro de control para la gestión eficiente de la atención en Salud Linux.
+            </p>
+        </div>
+    </main>
 </div>
