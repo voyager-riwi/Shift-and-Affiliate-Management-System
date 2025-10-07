@@ -18,6 +18,9 @@ public class AffiliatesController : ControllerBase
         _context = context;
     }
 
+
+    
+    
     // GET: /api/Affiliates/{id}
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)

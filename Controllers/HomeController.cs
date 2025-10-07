@@ -36,6 +36,12 @@ public class HomeController : Controller
         return View();
     }
     
+    public IActionResult RegisterAffiliate()
+    {
+        return View();
+    }
+    
+
     // Acción para cargar el panel de control del operador
     public async Task<IActionResult> Dashboard()
     {
