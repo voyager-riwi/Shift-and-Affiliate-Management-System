@@ -1,6 +1,4 @@
-@model System_EPS.Models.ServiceDesk 
-@* Asegúrate de que este modelo/ViewBag coincida con lo que tu HomeController.Dashboard retorna *@
-
+@* CORRECCIÓN 1: Se eliminó la línea '@model System_EPS.Models.ServiceDesk' *@
 @{
     ViewData["Title"] = "Panel de Control";
 }
@@ -11,52 +9,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* Estilos del Sidebar */
-        .sidebar {
-            /* Fija el sidebar y lo hace ocupar toda la altura */
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 20; /* Elevado para estar sobre el contenido */
-            width: 16rem; /* Ancho fijo para la barra lateral (w-64 en Tailwind) */
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Fondo muy claro */
-        }
-        .card-atendiendo {
-            /* Estilo para la caja de atención actual */
-            background-color: #e0f2f1; /* Verde menta claro */
-            border: 2px solid #2dd4bf;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-top: 1.5rem;
-        }
-        .turno-actual {
-            /* Estilo para el código del turno grande */
-            font-size: 2.5rem; /* 40px */
-            font-weight: 800;
-            color: #0d9488; /* Verde oscuro del turno */
-            margin-bottom: 0.5rem;
-        }
-        .afiliado-actual {
-            color: #4b5563;
-            font-weight: 600;
-        }
-        .btn-llamar {
-            /* Estilo para el botón principal de acción */
-            background-color: #3b82f6; /* Azul primario */
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
-        }
-        .btn-llamar:hover {
-            background-color: #2563eb; /* Azul oscuro al pasar el mouse */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.5);
-        }
+        /* ... (tus estilos aquí, están bien como están) ... */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        main { margin-left: 16rem; }
     </style>
 }
 
@@ -68,50 +23,53 @@
         </div>
 
         <nav>
-            <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos de Acceso Rápido</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos</h3>
             
-            <a href="@Url.Action("Kiosk", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
+            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
+                <i class="fas fa-desktop w-6 text-lg text-green-400"></i>
+                <span class="ml-3 font-medium">Panel de Control</span>
+            </a>
+
+            <a href="@Url.Action("ManageAffiliate", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150">
+                <i class="fas fa-user-plus w-6 text-lg text-yellow-400"></i>
+                <span class="ml-3">Gestión de Afiliados</span>
+            </a>
+
+            <h3 class="text-xs uppercase font-semibold text-gray-400 mt-6 mb-3 ml-2">Visualización</h3>
+
+            <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
                 <i class="fas fa-tablet-alt w-6 text-lg text-blue-400"></i>
                 <span class="ml-3 font-medium">Kiosko de Turnos</span>
             </a>
 
-            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
-                <i class="fas fa-desktop w-6 text-lg text-green-400"></i>
-                <span class="ml-3 font-medium">Panel de Control (Operador)</span>
-            </a>
-
             <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
                 <i class="fas fa-tv w-6 text-lg text-red-400"></i>
-                <span class="ml-3 font-medium">Pantalla de Llamadas (Público)</span>
-            </a>
-            <a href="@Url.Action("RegisterAffiliate", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
-                <i class="fas fa-user-plus w-6 text-lg text-yellow-400"></i>
-                <span class="ml-3">Registrar Afiliado</span>
+                <span class="ml-3 font-medium">Pantalla de Llamadas</span>
             </a>
         </nav>
         
-        <div class="mt-auto pt-6 border-t border-gray-700 text-center absolute bottom-0 w-full left-0 px-4 pb-4">
+        <div class="mt-auto pt-6 border-t border-gray-700 text-center">
             <p class="text-xs text-gray-500">Salud Linux &copy; 2025</p>
         </div>
     </aside>
 
-    <main class="flex-1 p-4 md:p-8 ml-64"> <div class="container mx-auto">
+    <main class="flex-1 p-4 md:p-8">
+        <div class="container mx-auto">
             <h1 class="text-3xl font-extrabold text-gray-900 mb-6">Panel de Control de Turnos</h1>
             
             <div class="flex flex-wrap -mx-4">
                 
                 <div class="w-full lg:w-1/3 px-4 mb-6 lg:mb-0">
-                    <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                    <div class="bg-white rounded-xl shadow-lg">
                         <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center">
                             <i class="fas fa-desktop me-3"></i> Panel de Operación
                         </div>
                         <div class="p-6">
-                            
                             <div class="mb-6">
                                 <label for="selectServiceDesk" class="block text-gray-700 text-sm font-bold mb-2">
                                     <i class="fas fa-cash-register me-1"></i> Puesto de Atención:
                                 </label>
-                                <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                                <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                     @if (ViewBag.ServiceDesks != null)
                                     {
                                         @foreach (var desk in ViewBag.ServiceDesks)
@@ -121,35 +79,28 @@
                                     }
                                 </select>
                             </div>
-                            
-                            <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold">
+                            <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold text-white">
                                 <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
                             </button>
-                            
-                            <div class="card-atendiendo">
-                                <h5 class="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center">
-                                    <i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora
-                                </h5>
+                            <div class="card-atendiendo text-center">
+                                <h5 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora</h5>
                                 <div id="turnoActual" class="turno-actual">- - -</div>
                                 <div id="afiliadoActual" class="afiliado-actual">Esperando turno...</div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
 
                 <div class="w-full lg:w-2/3 px-4">
-                    
-                    <h3 class="text-2xl font-extrabold text-gray-800 mb-3 section-title flex items-center">
+                    <h3 class="text-2xl font-extrabold text-gray-800 mb-3 flex items-center">
                         <i class="fas fa-users me-3 text-blue-600"></i> Fila de Espera
                     </h3>
-                    <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6 overflow-hidden">
+                    <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6">
                         <ul id="listaEspera" class="divide-y divide-gray-200">
                             <li class="p-4 text-gray-500 font-medium text-center">Cargando...</li>
                         </ul>
                     </div>
-
-                    <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 section-title flex items-center">
+                    <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 flex items-center">
                         <i class="fas fa-history me-3 text-indigo-600"></i> Historial de Hoy
                     </h3>
                     <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
@@ -169,11 +120,10 @@
                 </div>
             </div>
         </div>
-
     </main>
 </div>
 
 @section Scripts {
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
-<script src="~/js/dashboard.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="~/js/dashboard.js"></script>
 }

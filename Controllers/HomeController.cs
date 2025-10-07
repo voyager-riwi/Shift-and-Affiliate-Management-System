@@ -36,12 +36,6 @@ public class HomeController : Controller
         return View();
     }
     
-    public IActionResult RegisterAffiliate()
-    {
-        return View();
-    }
-    
-
     // Acción para cargar el panel de control del operador
     public async Task<IActionResult> Dashboard()
     {
@@ -60,6 +54,13 @@ public class HomeController : Controller
     // Se accede en /Home/TurnDisplay
     public IActionResult TurnDisplay()
     {
+        return View();
+    }
+    
+    // Si un ID viene en la URL, lo pasamos a la vista
+    public IActionResult ManageAffiliate(int? id)
+    {
+        ViewBag.AffiliateId = id;
         return View();
     }
 
