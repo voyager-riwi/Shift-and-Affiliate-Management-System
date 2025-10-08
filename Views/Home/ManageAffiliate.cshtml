@@ -7,145 +7,262 @@ ViewData["Title"] = "Gestión de Afiliados";
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-    .sidebar { position: fixed; top: 0; left: 0; z-index: 10; width: 16rem; height: 100vh; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+    .sidebar { position: fixed; top: 0; left: 0; z-index: 50; width: 16rem; height: 100vh; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .camera-container { border: 2px solid #e5e7eb; background-color: #f9fafb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-    main { margin-left: 16rem; } /* Ajuste para el contenido principal */
+    main { margin-left: 16rem; }
+    #qr-reader { border: 2px dashed #ccc; border-radius: 8px; max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+    #qr-reader.active { max-height: 400px; padding: 10px; }
+    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-left: 10px; }
+    @@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 }
 
 <div class="flex min-h-screen bg-gray-50">
-
     <aside class="sidebar bg-gray-800 text-white flex flex-col p-4">
         <div class="text-2xl font-extrabold text-blue-400 mb-8 pt-2 border-b border-gray-700 pb-4">
             <i class="fas fa-heartbeat mr-2"></i> System EPS
-        </div>
-        <nav class="flex-grow">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos</h3>
-            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
-                <i class="fas fa-desktop w-6 text-lg text-green-400"></i><span class="ml-3 font-medium">Panel de Control</span>
-            </a>
-            <a href="@Url.Action("ManageAffiliate", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
-                <i class="fas fa-user-plus w-6 text-lg text-yellow-400"></i><span class="ml-3">Gestión de Afiliados</span>
-            </a>
-            <h3 class="text-xs uppercase font-semibold text-gray-400 mt-6 mb-3 ml-2">Visualización</h3>
-            <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
-                <i class="fas fa-tablet-alt w-6 text-lg text-blue-400"></i><span class="ml-3 font-medium">Kiosko de Turnos</span>
-            </a>
-            <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-150 mb-2">
-                <i class="fas fa-tv w-6 text-lg text-red-400"></i><span class="ml-3 font-medium">Pantalla de Llamadas</span>
-            </a>
-        </nav>
-        <div class="mt-auto pt-6 border-t border-gray-700 text-center">
-            <p class="text-xs text-gray-500">Salud Linux &copy; 2025</p>
         </div>
     </aside>
 
     <main class="flex-1 p-4 md:p-8">
         <div class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-2xl">
-
-            <header class="mb-8 border-b pb-4">
+            <header class="mb-6 border-b pb-4">
                 <h1 id="formHeader" class="text-3xl font-extrabold text-gray-900 flex items-center">
-                    <i class="fas fa-user-plus text-indigo-600 mr-3"></i> Gestión de Afiliados
+                    <i class="fas fa-user-edit text-indigo-600 mr-3"></i> Gestión de Afiliados
                 </h1>
-                <p class="text-gray-500 mt-1">Cree, busque, actualice o elimine registros de afiliados.</p>
             </header>
 
             <div id="messageBox" class="p-3 mb-4 rounded-lg text-sm hidden" role="alert"></div>
 
-            <div class="mb-6">
-                <label for="qrInput" class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-qrcode mr-2"></i>Escanear Carnet o Ingresar ID</label>
-                <input type="text" id="qrInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="El lector QR o la URL escribirán aquí...">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <button id="btnVerTodos" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg w-full">
+                        <i class="fas fa-list-ul mr-2"></i> Ver Todos
+                    </button>
+                </div>
+                <div>
+                    <div class="flex">
+                        <input type="text" id="searchInput" class="form-input w-full rounded-l-lg border-gray-300" placeholder="Buscar por Documento...">
+                        <button id="btnBuscarDoc" class="bg-indigo-600 text-white px-4 rounded-r-lg hover:bg-indigo-700">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <button id="btnEscanearQR" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg">
+                        <i class="fas fa-qrcode mr-2"></i> Escanear QR
+                    </button>
+                    <button id="btnBuscarPorId" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-2">
+                        <i class="fas fa-hashtag mr-2"></i> Buscar por ID
+                    </button>
+                </div>
             </div>
+
+            <div id="qr-reader" class="mb-4 w-full mx-auto md:w-1/2"></div>
 
             <form id="affiliateForm" class="space-y-6">
                 <input type="hidden" id="affiliateId">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="space-y-6">
-                        <h4 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">1. Datos Personales</h4>
+                        <h4 class="text-xl font-semibold text-gray-700 border-b pb-2">1. Datos Personales</h4>
                         <div>
-                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo <span class="text-red-500">*</span></label>
-                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" id="fullName" required>
+                            <label for="fullName" class="block text-sm font-medium">Nombre Completo <span class="text-red-500">*</span></label>
+                            <input type="text" class="w-full px-4 py-2 border rounded-lg" id="fullName" required>
                         </div>
                         <div>
-                            <label for="documentId" class="block text-sm font-medium text-gray-700 mb-1">Documento <span class="text-red-500">*</span></label>
-                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" id="documentId" required>
+                            <label for="documentId" class="block text-sm font-medium">Documento <span class="text-red-500">*</span></label>
+                            <input type="text" class="w-full px-4 py-2 border rounded-lg" id="documentId" required>
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                            <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" id="email">
+                            <label for="email" class="block text-sm font-medium">Correo</label>
+                            <input type="email" class="w-full px-4 py-2 border rounded-lg" id="email">
                         </div>
                         <div>
-                            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" id="phoneNumber">
+                            <label for="phoneNumber" class="block text-sm font-medium">Teléfono</label>
+                            <input type="text" class="w-full px-4 py-2 border rounded-lg" id="phoneNumber">
                         </div>
                     </div>
-
                     <div class="space-y-6">
-                        <h4 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">2. Captura de Foto Facial</h4>
-                        <div class="camera-container rounded-lg p-4 text-center">
-                            <video id="video" width="320" height="240" autoplay class="w-full max-w-[320px] mx-auto rounded-md shadow-md mb-4"></video>
-                            <button type="button" id="captureButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-200 shadow-md flex items-center justify-center mx-auto">
-                                <i class="fas fa-camera mr-2"></i> Capturar Foto
+                        <h4 class="text-xl font-semibold text-gray-700 border-b pb-2">2. Foto Facial</h4>
+                        <div class="p-4 bg-gray-50 text-center rounded-lg">
+                            <video id="video" width="320" height="240" autoplay class="w-full max-w-[320px] mx-auto rounded-md shadow-md bg-black"></video>
+                            <button type="button" id="captureButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full mt-2">
+                                <i class="fas fa-camera mr-2"></i> Capturar
                             </button>
-                            <h5 class="text-lg font-medium text-gray-700 mt-4 mb-2">Vista Previa:</h5>
-                            <img id="preview" width="320" height="240" class="w-full max-w-[320px] mx-auto rounded-md border border-gray-300 bg-gray-100" />
+                            <h5 class="text-lg font-medium mt-4">Vista Previa:</h5>
+                            <img id="preview" width="320" height="240" class="w-full max-w-[320px] mx-auto rounded-md border-2 bg-gray-100" />
                         </div>
                     </div>
                 </div>
-                <hr class="border-gray-300 mt-8">
+                <hr class="mt-8">
                 <div class="pt-4 flex flex-wrap gap-4 justify-end">
-                    <button type="button" id="btnCrear" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus-circle mr-2"></i> Crear Nuevo</button>
-                    <button type="button" id="btnActualizar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;"><i class="fas fa-save mr-2"></i> Actualizar</button>
-                    <button type="button" id="btnEliminar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;"><i class="fas fa-trash-alt mr-2"></i> Eliminar</button>
-                    <button type="button" id="btnLimpiar" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-broom mr-2"></i> Limpiar</button>
+                    <button type="button" id="btnCrear" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
+                        <i class="fas fa-plus-circle mr-2"></i> Crear
+                    </button>
+                    <button type="button" id="btnActualizar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg" style="display: none;">
+                        <i class="fas fa-save mr-2"></i> Actualizar
+                    </button>
+                    <button type="button" id="btnEliminar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg" style="display: none;">
+                        <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                    </button>
+                    <button type="button" id="btnLimpiar" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg">
+                        <i class="fas fa-broom mr-2"></i> Limpiar
+                    </button>
+                    <button type="button" id="btnImprimirCarnet" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg" style="display: none;">
+                        <i class="fas fa-print mr-2"></i> Imprimir Carnet
+                    </button>
                 </div>
             </form>
         </div>
     </main>
 </div>
 
+<div id="modalVerTodos" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 100;">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <h3 class="text-2xl font-bold"><i class="fas fa-users mr-2"></i> Lista de Afiliados</h3>
+            <button id="btnCloseModal" class="text-gray-500 text-3xl font-bold">&times;</button>
+        </div>
+        <div class="max-h-96 overflow-y-auto">
+            <table class="min-w-full divide-y">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="p-3 text-left">ID</th>
+                    <th class="p-3 text-left">Nombre</th>
+                    <th class="p-3 text-left">Documento</th>
+                    <th class="p-3 text-left">Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="tablaAfiliados" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Carnet -->
+<div id="modalCarnet" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 100;">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold"><i class="fas fa-id-card mr-2"></i> Carnet del Afiliado</h3>
+            <button id="btnCloseCarnetModal" class="text-gray-500 hover:text-gray-700 text-3xl font-bold">&times;</button>
+        </div>
+        <div id="carnetContent" class="mb-4"></div>
+        <div class="flex gap-4 justify-center">
+            <button id="btnPrintCarnet" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg">
+                <i class="fas fa-print mr-2"></i> Imprimir
+            </button>
+            <button id="btnDownloadCarnet" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">
+                <i class="fas fa-download mr-2"></i> Descargar PNG
+            </button>
+        </div>
+    </div>
+</div>
+
 <canvas id="canvas" width="320" height="240" class="hidden"></canvas>
 
 @section Scripts {
+<!-- SOLUCIÓN: Cargamos la librería desde múltiples CDNs como fallback -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- Referencias a Elementos ---
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const captureButton = document.getElementById('captureButton');
-        const preview = document.getElementById('preview');
-        const form = document.getElementById('affiliateForm');
-        const qrInput = document.getElementById('qrInput');
+    // Flag global para verificar si la librería se cargó
+    window.qrLibraryLoaded = false;
+</script>
 
-        const affiliateIdInput = document.getElementById('affiliateId');
-        const fullNameInput = document.getElementById('fullName');
-        const documentIdInput = document.getElementById('documentId');
-        const emailInput = document.getElementById('email');
-        const phoneNumberInput = document.getElementById('phoneNumber');
+<!-- Intento 1: unpkg (original) -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+        onload="window.qrLibraryLoaded = true; console.log('QR library loaded from unpkg');"
+        onerror="console.warn('Failed to load from unpkg, trying jsdelivr...');"></script>
 
-        const btnCrear = document.getElementById('btnCrear');
-        const btnActualizar = document.getElementById('btnActualizar');
-        const btnEliminar = document.getElementById('btnEliminar');
-        const btnLimpiar = document.getElementById('btnLimpiar');
-        const messageBox = document.getElementById('messageBox');
+<!-- Intento 2: jsdelivr (fallback) -->
+<script>
+    if (!window.qrLibraryLoaded) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+        script.onload = () => {
+            window.qrLibraryLoaded = true;
+            console.log('QR library loaded from jsdelivr');
+        };
+        script.onerror = () => console.error('Failed to load QR library from all CDNs');
+        document.head.appendChild(script);
+    }
+</script>
 
-        let photoBase64 = null;
-        let videoStream = null;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    // Esperamos a que el DOM y las librerías estén listas
+    window.addEventListener('load', () => {
+        // Pequeño delay para asegurar que las librerías se carguen
+        setTimeout(initializeApp, 500);
+    });
+
+    function initializeApp() {
+        // --- Referencias a Elementos del DOM ---
+        const video = document.getElementById('video'),
+            canvas = document.getElementById('canvas'),
+            captureButton = document.getElementById('captureButton'),
+            preview = document.getElementById('preview'),
+            form = document.getElementById('affiliateForm'),
+            searchInput = document.getElementById('searchInput'),
+            affiliateIdInput = document.getElementById('affiliateId'),
+            fullNameInput = document.getElementById('fullName'),
+            documentIdInput = document.getElementById('documentId'),
+            emailInput = document.getElementById('email'),
+            phoneNumberInput = document.getElementById('phoneNumber'),
+            btnCrear = document.getElementById('btnCrear'),
+            btnActualizar = document.getElementById('btnActualizar'),
+            btnEliminar = document.getElementById('btnEliminar'),
+            btnLimpiar = document.getElementById('btnLimpiar'),
+            btnImprimirCarnet = document.getElementById('btnImprimirCarnet'),
+            messageBox = document.getElementById('messageBox'),
+            btnVerTodos = document.getElementById('btnVerTodos'),
+            modalVerTodos = document.getElementById('modalVerTodos'),
+            btnCloseModal = document.getElementById('btnCloseModal'),
+            tablaAfiliados = document.getElementById('tablaAfiliados'),
+            btnBuscarDoc = document.getElementById('btnBuscarDoc'),
+            btnEscanearQR = document.getElementById('btnEscanearQR'),
+            qrReader = document.getElementById('qr-reader'),
+            modalCarnet = document.getElementById('modalCarnet'),
+            btnCloseCarnetModal = document.getElementById('btnCloseCarnetModal'),
+            btnPrintCarnet = document.getElementById('btnPrintCarnet'),
+            btnDownloadCarnet = document.getElementById('btnDownloadCarnet'),
+            carnetContent = document.getElementById('carnetContent');
+
+        let photoBase64 = null, videoStream = null, html5QrCode = null, currentAffiliateData = null;
 
         // --- FUNCIONES DE UTILIDAD ---
-        function showMessage(message, type = 'success') {
+        function showMessage(message, type = 'info', duration = 5000) {
             messageBox.textContent = message;
-            messageBox.className = 'p-3 mb-4 rounded-lg text-sm'; // Reset
-            if (type === 'success') messageBox.classList.add('bg-green-100', 'text-green-800');
-            else if (type === 'error') messageBox.classList.add('bg-red-100', 'text-red-800');
-            else messageBox.classList.add('bg-yellow-100', 'text-yellow-800');
+            messageBox.className = 'p-3 mb-4 rounded-lg text-sm border transition-opacity duration-300';
+            messageBox.classList.remove('hidden', 'opacity-0');
+
+            const typeClasses = {
+                success: ['bg-green-100', 'text-green-800', 'border-green-400'],
+                error: ['bg-red-100', 'text-red-800', 'border-red-400'],
+                warning: ['bg-yellow-100', 'text-yellow-800', 'border-yellow-400'],
+                info: ['bg-blue-100', 'text-blue-800', 'border-blue-400']
+            };
+
+            messageBox.classList.add(...(typeClasses[type] || typeClasses.info));
+
+            setTimeout(() => {
+                messageBox.classList.add('opacity-0');
+                setTimeout(() => messageBox.classList.add('hidden'), 300);
+            }, duration);
         }
 
-        function stopCamera() {
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
+        function addLoader(button) {
+            if (!button.querySelector('.loader')) {
+                const loader = document.createElement('span');
+                loader.className = 'loader';
+                button.appendChild(loader);
             }
+            button.disabled = true;
+        }
+
+        function removeLoader(button) {
+            const loader = button.querySelector('.loader');
+            if (loader) loader.remove();
+            button.disabled = false;
         }
 
         function limpiarFormulario() {
@@ -153,64 +270,283 @@ ViewData["Title"] = "Gestión de Afiliados";
             preview.src = '';
             photoBase64 = null;
             affiliateIdInput.value = '';
-            qrInput.value = '';
-
+            searchInput.value = '';
+            currentAffiliateData = null;
             btnCrear.style.display = 'inline-block';
             btnActualizar.style.display = 'none';
             btnEliminar.style.display = 'none';
-            messageBox.classList.add('hidden');
+            btnImprimirCarnet.style.display = 'none';
             document.getElementById('formHeader').innerHTML = '<i class="fas fa-user-plus text-indigo-600 mr-3"></i> Gestión de Afiliados';
         }
 
-        // --- INICIALIZACIÓN ---
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => { videoStream = stream; video.srcObject = stream; })
-            .catch(err => showMessage("No se pudo acceder a la cámara. Verifique los permisos.", 'error'));
+        // --- FUNCIÓN PARA GENERAR CARNET ---
+        function generarCarnet(affiliate) {
+            const qrUrl = `${window.location.origin}/Home/ManageAffiliate?id=${affiliate.id}`;
 
-        // --- EVENT LISTENERS ---
+            const carnetHTML = `
+            <div class="carnet-preview mx-auto" style="width: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">EPS VOYAGER</h2>
+                    <p class="text-sm opacity-90">Entidad Promotora de Salud</p>
+                </div>
+                <div class="flex items-center gap-5 mb-6">
+                    <img src="${affiliate.photoBase64 || preview.src}" class="w-28 h-28 rounded-xl object-cover border-4 border-white shadow-lg" alt="Foto">
+                    <div class="flex-1">
+                        <p class="text-xl font-bold mb-1">${affiliate.fullName}</p>
+                        <p class="text-sm opacity-90 mb-1"><i class="fas fa-id-card mr-1"></i> ${affiliate.documentId}</p>
+                        ${affiliate.email ? `<p class="text-xs opacity-80"><i class="fas fa-envelope mr-1"></i> ${affiliate.email}</p>` : ''}
+                        ${affiliate.phoneNumber ? `<p class="text-xs opacity-80"><i class="fas fa-phone mr-1"></i> ${affiliate.phoneNumber}</p>` : ''}
+                    </div>
+                </div>
+                <div class="bg-white text-gray-800 p-4 rounded-xl text-center shadow-inner">
+                    <img id="qrcodeImg" class="mx-auto mb-2" style="width: 120px; height: 120px;" alt="QR Code">
+                    <p class="text-sm font-semibold">ID Afiliado: ${affiliate.id}</p>
+                </div>
+                <div class="text-center mt-5 text-xs opacity-80">
+                    <p class="mb-1"><i class="fas fa-calendar-alt mr-1"></i> Válido desde: ${new Date().toLocaleDateString('es-CO')}</p>
+                    <p><i class="fas fa-exclamation-triangle mr-1"></i> En caso de pérdida, reportar inmediatamente</p>
+                </div>
+            </div>
+        `;
+
+            carnetContent.innerHTML = carnetHTML;
+
+            // Generar QR Code usando API
+            const qrImg = document.getElementById('qrcodeImg');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrUrl)}&bgcolor=ffffff&color=000000&margin=10`;
+
+            return carnetHTML;
+        }
+
+        function mostrarCarnet(affiliate) {
+            currentAffiliateData = affiliate;
+            generarCarnet(affiliate);
+            modalCarnet.classList.remove('hidden');
+        }
+
+        // --- LÓGICA DE HARDWARE (CÁMARA) ---
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoStream = stream;
+                video.srcObject = stream;
+                showMessage("Cámara activada correctamente", 'success', 3000);
+            })
+            .catch(err => {
+                console.error('Camera error:', err);
+                showMessage("No se pudo acceder a la cámara. Revisa los permisos.", 'error');
+            });
+
         captureButton.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL('image/png');
             preview.src = dataUrl;
             photoBase64 = dataUrl;
-            showMessage("Foto capturada.", 'info');
+            showMessage("Foto capturada correctamente", 'success', 2000);
         });
 
-        qrInput.addEventListener('change', async () => {
-            const id = qrInput.value;
-            if (id) await cargarAfiliado(id);
+        // --- ESCÁNER QR (MEJORADO) ---
+        btnEscanearQR.addEventListener('click', async () => {
+            // Verificación mejorada de la librería
+            if (typeof Html5Qrcode === 'undefined' && typeof window.Html5Qrcode === 'undefined') {
+                showMessage('⚠️ La librería del escáner QR no está disponible. Intenta recargar la página o usa la búsqueda manual.', 'warning', 8000);
+                console.error('Html5Qrcode library not found. Check network and ad-blockers.');
+                return;
+            }
+
+            const Html5QrcodeLib = window.Html5Qrcode || Html5Qrcode;
+
+            // Si ya está escaneando, detener
+            if (html5QrCode && html5QrCode.isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    qrReader.classList.remove('active');
+                    btnEscanearQR.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Escanear QR';
+                    html5QrCode = null;
+                } catch(err) {
+                    console.error('Error stopping scanner:', err);
+                }
+                return;
+            }
+
+            // Activar el lector
+            qrReader.classList.add('active');
+            html5QrCode = new Html5QrcodeLib("qr-reader");
+
+            const onScanSuccess = (decodedText) => {
+                console.log('QR escaneado:', decodedText);
+
+                // Extraer ID del texto escaneado
+                let id = null;
+                if (decodedText.includes('id=')) {
+                    const params = new URLSearchParams(decodedText.split('?')[1]);
+                    id = params.get('id');
+                } else if (decodedText.includes('/')) {
+                    id = decodedText.split('/').pop();
+                } else {
+                    id = decodedText;
+                }
+
+                if (id && !isNaN(id)) {
+                    cargarAfiliado(id);
+                    html5QrCode.stop().then(() => {
+                        qrReader.classList.remove('active');
+                        btnEscanearQR.innerHTML = '<i class="fas fa-qrcode mr-2"></i> Escanear QR';
+                        html5QrCode = null;
+                    });
+                } else {
+                    showMessage('QR no válido. Formato de ID incorrecto.', 'warning');
+                }
+            };
+
+            const onScanError = (error) => {
+                // Silenciar errores normales de escaneo
+                if (!error.includes('NotFoundException')) {
+                    console.warn('QR scan error:', error);
+                }
+            };
+
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+                btnEscanearQR.innerHTML = '<i class="fas fa-stop mr-2"></i> Detener Escáner';
+                showMessage('Escáner QR activo. Enfoca el código QR.', 'info', 3000);
+            } catch(err) {
+                console.error('QR start error:', err);
+                showMessage('No se pudo iniciar el escáner. Verifica permisos de cámara.', 'error');
+                qrReader.classList.remove('active');
+                html5QrCode = null;
+            }
         });
 
-        btnCrear.addEventListener('click', guardarAfiliado);
-        btnActualizar.addEventListener('click', actualizarAfiliado);
-        btnEliminar.addEventListener('click', eliminarAfiliado);
-        btnLimpiar.addEventListener('click', limpiarFormulario);
+        // --- BÚSQUEDA ---
+        const buscarPorDocumento = async () => {
+            const docId = searchInput.value.trim();
+            if (!docId) {
+                showMessage('Ingrese un documento para buscar.', 'warning');
+                return;
+            }
 
-        window.addEventListener('beforeunload', stopCamera);
+            addLoader(btnBuscarDoc);
+
+            try {
+                const response = await fetch(`/api/Affiliates/ByDocument/${encodeURIComponent(docId)}`);
+                if (response.status === 404) {
+                    throw new Error('Afiliado con ese documento no encontrado.');
+                }
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.statusText}`);
+                }
+                const affiliate = await response.json();
+                await cargarAfiliado(affiliate.id);
+                showMessage(`Afiliado encontrado: ${affiliate.fullName}`, 'success');
+            } catch(error) {
+                showMessage(error.message, 'error');
+            } finally {
+                removeLoader(btnBuscarDoc);
+            }
+        };
+
+        btnBuscarDoc.addEventListener('click', buscarPorDocumento);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarPorDocumento();
+            }
+        });
+
+        // --- BÚSQUEDA POR ID (ALTERNATIVA AL QR) ---
+        const btnBuscarPorId = document.getElementById('btnBuscarPorId');
+        btnBuscarPorId.addEventListener('click', () => {
+            const id = prompt('Ingrese el ID del afiliado:');
+            if (id && !isNaN(id) && id > 0) {
+                cargarAfiliado(id);
+            } else if (id) {
+                showMessage('ID inválido. Debe ser un número positivo.', 'warning');
+            }
+        });
+
+        // --- LISTA DE AFILIADOS ---
+        btnVerTodos.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/Affiliates');
+                if (!response.ok) throw new Error('Error al cargar afiliados');
+
+                const affiliates = await response.json();
+                tablaAfiliados.innerHTML = '';
+
+                if (affiliates.length === 0) {
+                    tablaAfiliados.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">No hay afiliados registrados</td></tr>';
+                } else {
+                    affiliates.forEach(aff => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gray-50';
+                        tr.innerHTML = `
+                        <td class="p-2">${aff.id}</td>
+                        <td class="p-2">${aff.fullName}</td>
+                        <td class="p-2">${aff.documentId}</td>
+                        <td class="p-2">
+                            <button class="btn-edit bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600" data-id="${aff.id}">Editar</button>
+                            <button class="btn-delete bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 ml-2" data-id="${aff.id}">Eliminar</button>
+                        </td>
+                    `;
+                        tablaAfiliados.appendChild(tr);
+                    });
+                }
+                modalVerTodos.classList.remove('hidden');
+            } catch(error) {
+                showMessage('Error al cargar la lista de afiliados.', 'error');
+            }
+        });
+
+        btnCloseModal.addEventListener('click', () => modalVerTodos.classList.add('hidden'));
+
+        // --- DELEGACIÓN DE EVENTOS PARA TABLA ---
+        tablaAfiliados.addEventListener('click', (e) => {
+            const id = e.target.dataset.id;
+            if (e.target.classList.contains('btn-edit')) {
+                cargarAfiliado(id);
+                modalVerTodos.classList.add('hidden');
+            }
+            if (e.target.classList.contains('btn-delete')) {
+                eliminarAfiliado(id, e.target.closest('tr'));
+            }
+        });
 
         // --- FUNCIONES CRUD ---
         async function cargarAfiliado(id) {
+            if (!id) return;
             try {
                 const response = await fetch(`/api/Affiliates/${id}`);
                 if (!response.ok) throw new Error('Afiliado no encontrado');
 
                 const affiliate = await response.json();
 
+                limpiarFormulario();
                 affiliateIdInput.value = affiliate.id;
                 fullNameInput.value = affiliate.fullName;
                 documentIdInput.value = affiliate.documentId;
-                emailInput.value = affiliate.email;
-                phoneNumberInput.value = affiliate.phoneNumber;
-                preview.src = affiliate.photoBase64;
+                emailInput.value = affiliate.email || '';
+                phoneNumberInput.value = affiliate.phoneNumber || '';
+                preview.src = affiliate.photoBase64 || '';
                 photoBase64 = affiliate.photoBase64;
+                currentAffiliateData = affiliate;
 
                 btnCrear.style.display = 'none';
                 btnActualizar.style.display = 'inline-block';
                 btnEliminar.style.display = 'inline-block';
-                document.getElementById('formHeader').innerHTML = '<i class="fas fa-edit text-blue-600 mr-3"></i> Editando Afiliado';
-                showMessage(`Cargado afiliado: ${affiliate.fullName}`, 'success');
+                btnImprimirCarnet.style.display = 'inline-block';
 
+                document.getElementById('formHeader').innerHTML = `<i class="fas fa-edit text-indigo-600 mr-3"></i> Editando: ${affiliate.fullName}`;
+                showMessage(`Datos de ${affiliate.fullName} cargados.`, 'success');
             } catch (error) {
                 showMessage(error.message, 'error');
                 limpiarFormulario();
@@ -218,9 +554,12 @@ ViewData["Title"] = "Gestión de Afiliados";
         }
 
         async function guardarAfiliado() {
-            if (!fullNameInput.value || !documentIdInput.value) { showMessage("Nombre y Documento son requeridos.", 'warning'); return; }
-            if (!photoBase64) { showMessage("Por favor, capture una foto.", 'warning'); return; }
+            if (!fullNameInput.value || !documentIdInput.value || !photoBase64) {
+                showMessage("Nombre, Documento y Foto son requeridos.", 'warning');
+                return;
+            }
 
+            addLoader(btnCrear);
             const affiliateData = {
                 fullName: fullNameInput.value,
                 documentId: documentIdInput.value,
@@ -229,67 +568,239 @@ ViewData["Title"] = "Gestión de Afiliados";
                 photoBase64: photoBase64
             };
 
-            const response = await fetch('/api/Affiliates', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(affiliateData)
-            });
+            try {
+                const response = await fetch('/api/Affiliates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(affiliateData)
+                });
 
-            if(response.ok) {
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Error al crear el afiliado');
+                }
+
                 const nuevoAfiliado = await response.json();
-                showMessage(`Afiliado ${nuevoAfiliado.fullName} creado con ID: ${nuevoAfiliado.id}`, 'success');
-                window.open(`/Print/Carnet/${nuevoAfiliado.id}`, '_blank', 'width=400,height=650');
-                limpiarFormulario();
-            } else {
-                showMessage("Error al crear el afiliado.", 'error');
+                currentAffiliateData = nuevoAfiliado;
+
+                showMessage(`Afiliado ${nuevoAfiliado.fullName} creado con éxito. ID: ${nuevoAfiliado.id}`, 'success', 3000);
+
+                // Cargar el afiliado recién creado para habilitar impresión
+                await cargarAfiliado(nuevoAfiliado.id);
+
+                // Mostrar automáticamente el carnet
+                setTimeout(() => {
+                    mostrarCarnet(nuevoAfiliado);
+                }, 500);
+
+            } catch(error) {
+                showMessage(error.message, 'error');
+            } finally {
+                removeLoader(btnCrear);
             }
         }
 
         async function actualizarAfiliado() {
             const id = affiliateIdInput.value;
-            if (!id) return;
+            if (!id || !fullNameInput.value || !documentIdInput.value) {
+                showMessage("Nombre y Documento son requeridos.", 'warning');
+                return;
+            }
 
+            // Si no hay foto capturada, usar la existente
+            if (!photoBase64 && currentAffiliateData) {
+                photoBase64 = currentAffiliateData.photoBase64;
+            }
+
+            if (!photoBase64) {
+                showMessage("La foto es requerida. Capture una nueva foto.", 'warning');
+                return;
+            }
+
+            addLoader(btnActualizar);
             const affiliateData = {
                 id: parseInt(id),
-                fullName: fullNameInput.value,
-                documentId: documentIdInput.value,
-                email: emailInput.value,
-                phoneNumber: phoneNumberInput.value,
+                fullName: fullNameInput.value.trim(),
+                documentId: documentIdInput.value.trim(),
+                email: emailInput.value.trim() || null,
+                phoneNumber: phoneNumberInput.value.trim() || null,
                 photoBase64: photoBase64
             };
 
-            const response = await fetch(`/api/Affiliates/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(affiliateData)
-            });
+            try {
+                const response = await fetch(`/api/Affiliates/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(affiliateData)
+                });
 
-            if(response.ok) {
-                showMessage("Afiliado actualizado con éxito.", 'success');
-            } else {
-                showMessage("Error al actualizar el afiliado.", 'error');
+                if (!response.ok) {
+                    // Intentar leer el error como JSON
+                    let errorMessage = 'Error al actualizar el afiliado';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.title || errorMessage;
+                    } catch (jsonError) {
+                        // Si no es JSON, leer como texto
+                        const errorText = await response.text();
+                        errorMessage = errorText || `Error ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                // Verificar si hay contenido en la respuesta
+                const contentType = response.headers.get("content-type");
+                let updatedAffiliate = null;
+
+                if (contentType && contentType.includes("application/json")) {
+                    const text = await response.text();
+                    if (text) {
+                        updatedAffiliate = JSON.parse(text);
+                    }
+                }
+
+                // Si no hay respuesta JSON, usar los datos actuales
+                if (!updatedAffiliate) {
+                    updatedAffiliate = affiliateData;
+                }
+
+                currentAffiliateData = updatedAffiliate;
+
+                showMessage("✅ Afiliado actualizado con éxito.", 'success');
+
+                // Recargar los datos actualizados
+                await cargarAfiliado(id);
+
+            } catch(error) {
+                console.error('Error completo:', error);
+                showMessage(error.message, 'error');
+            } finally {
+                removeLoader(btnActualizar);
             }
         }
 
-        async function eliminarAfiliado() {
-            const id = affiliateIdInput.value;
-            if (!id || !confirm("¿Está seguro de que desea eliminar a este afiliado?")) return;
+        async function eliminarAfiliado(id, tableRow = null) {
+            if (!id || !confirm(`¿Estás seguro de eliminar al afiliado con ID ${id}?`)) return;
 
-            const response = await fetch(`/api/Affiliates/${id}`, { method: 'DELETE' });
-
-            if(response.ok) {
-                showMessage("Afiliado eliminado con éxito.", 'success');
-                limpiarFormulario();
-            } else {
-                showMessage("Error al eliminar el afiliado.", 'error');
+            try {
+                const response = await fetch(`/api/Affiliates/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showMessage("Afiliado eliminado con éxito.", 'success');
+                    if (tableRow) tableRow.remove();
+                    if (affiliateIdInput.value == id) limpiarFormulario();
+                } else {
+                    throw new Error("Error al eliminar el afiliado.");
+                }
+            } catch(error) {
+                showMessage(error.message, 'error');
             }
         }
 
-        const initialId = @Html.Raw(Json.Serialize(ViewBag.AffiliateId));
-        if (initialId) {
-            qrInput.value = initialId;
-            cargarAfiliado(initialId);
-        }
-    });
+        // --- EVENT LISTENERS ---
+        btnCrear.addEventListener('click', guardarAfiliado);
+        btnActualizar.addEventListener('click', actualizarAfiliado);
+        btnEliminar.addEventListener('click', () => eliminarAfiliado(affiliateIdInput.value));
+        btnLimpiar.addEventListener('click', limpiarFormulario);
+
+        // --- MANEJO DEL CARNET ---
+        btnImprimirCarnet.addEventListener('click', () => {
+            if (!currentAffiliateData) {
+                showMessage("No hay un afiliado cargado. Busque o cree uno primero.", "warning");
+                return;
+            }
+            mostrarCarnet(currentAffiliateData);
+        });
+
+        btnCloseCarnetModal.addEventListener('click', () => modalCarnet.classList.add('hidden'));
+
+        btnPrintCarnet.addEventListener('click', () => {
+            // Crear estilos de impresión dinámicos
+            const printStyles = `
+            <style>
+                @@media print {
+                    body * { visibility: hidden; }
+                    #carnetContent, #carnetContent * { visibility: visible; }
+                    #carnetContent { 
+                        position: absolute; 
+                        left: 50%; 
+                        top: 50%; 
+                        transform: translate(-50%, -50%);
+                    }
+                }
+            </style>
+        `;
+
+            // Agregar estilos temporalmente
+            const styleElement = document.createElement('div');
+            styleElement.innerHTML = printStyles;
+            document.head.appendChild(styleElement);
+
+            // Imprimir
+            window.print();
+
+            // Remover estilos después de imprimir
+            setTimeout(() => {
+                document.head.removeChild(styleElement);
+            }, 1000);
+        });
+
+        btnDownloadCarnet.addEventListener('click', async () => {
+            if (!currentAffiliateData) {
+                showMessage("No hay datos del carnet para descargar.", "error");
+                return;
+            }
+
+            try {
+                addLoader(btnDownloadCarnet);
+
+                const carnetElement = document.querySelector('.carnet-preview');
+                if (!carnetElement) {
+                    throw new Error("No se pudo encontrar el elemento del carnet");
+                }
+
+                const canvas = await html2canvas(carnetElement, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    useCORS: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `carnet_${currentAffiliateData.documentId}_${currentAffiliateData.fullName.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                showMessage('Carnet descargado correctamente', 'success', 2000);
+            } catch(error) {
+                console.error('Error al descargar carnet:', error);
+                showMessage('Error al descargar el carnet: ' + error.message, 'error');
+            } finally {
+                removeLoader(btnDownloadCarnet);
+            }
+        });
+
+        // Cerrar modales al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (e.target === modalVerTodos) {
+                modalVerTodos.classList.add('hidden');
+            }
+            if (e.target === modalCarnet) {
+                modalCarnet.classList.add('hidden');
+            }
+        });
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(() => {});
+            }
+        });
+
+        // Mensaje inicial
+        showMessage('Sistema listo. Puede comenzar a registrar afiliados.', 'info', 3000);
+    }
 </script>
 }

@@ -18,8 +18,13 @@ public class AffiliatesController : ControllerBase
         _context = context;
     }
 
-
-    
+    // GET: /api/Affiliates
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var affiliates = await _context.Affiliates.OrderBy(a => a.FullName).ToListAsync();
+        return Ok(affiliates);
+    }
     
     // GET: /api/Affiliates/{id}
     [HttpGet("{id}")]
@@ -75,7 +80,6 @@ public class AffiliatesController : ControllerBase
     {
         try
         {
-            // Validar el modelo
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -86,7 +90,6 @@ public class AffiliatesController : ControllerBase
                 return BadRequest(new { message = "Errores de validación", errors });
             }
 
-            // Validar que no exista otro afiliado con el mismo documento
             var existingAffiliate = await _context.Affiliates
                 .FirstOrDefaultAsync(a => a.DocumentId == affiliate.DocumentId);
             
@@ -95,10 +98,8 @@ public class AffiliatesController : ControllerBase
                 return BadRequest(new { message = $"Ya existe un afiliado con el documento '{affiliate.DocumentId}'." });
             }
 
-            // Inicializar la colección de Tickets como vacía
             affiliate.Tickets = new List<Ticket>();
 
-            // Guardar en la base de datos
             _context.Affiliates.Add(affiliate);
             await _context.SaveChangesAsync();
             
@@ -115,37 +116,32 @@ public class AffiliatesController : ControllerBase
     }
 
     // PUT: /api/Affiliates/{id}
+    // CORRECCIÓN: Ahora devuelve Ok(existingAffiliate) en lugar de NoContent()
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Affiliate affiliate)
+    public async Task<IActionResult> Update(int id, [FromBody] Affiliate affiliateUpdateData)
     {
+        if (id != affiliateUpdateData.Id)
+        {
+            return BadRequest(new { message = "El ID de la URL no coincide con el ID del cuerpo." });
+        }
+
+        var existingAffiliate = await _context.Affiliates.FindAsync(id);
+
+        if (existingAffiliate == null)
+        {
+            return NotFound(new { message = $"No se encontró un afiliado con el ID {id}." });
+        }
+
+        // Actualizar propiedades
+        existingAffiliate.FullName = affiliateUpdateData.FullName;
+        existingAffiliate.DocumentId = affiliateUpdateData.DocumentId;
+        existingAffiliate.Email = affiliateUpdateData.Email;
+        existingAffiliate.PhoneNumber = affiliateUpdateData.PhoneNumber;
+        existingAffiliate.PhotoBase64 = affiliateUpdateData.PhotoBase64;
+
         try
         {
-            if (id != affiliate.Id)
-            {
-                return BadRequest(new { message = "El ID de la URL no coincide con el ID del afiliado." });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-                
-                return BadRequest(new { message = "Errores de validación", errors });
-            }
-
-            // Verificar que el afiliado existe
-            var existingAffiliate = await _context.Affiliates.FindAsync(id);
-            if (existingAffiliate == null)
-            {
-                return NotFound(new { message = $"No se encontró un afiliado con el ID {id}." });
-            }
-
-            _context.Entry(affiliate).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            
-            return NoContent();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -155,10 +151,9 @@ public class AffiliatesController : ControllerBase
             }
             throw;
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Error al actualizar el afiliado", error = ex.Message });
-        }
+
+        // CAMBIO CRÍTICO: Devolver el objeto actualizado
+        return Ok(existingAffiliate);
     }
 
     // DELETE: /api/Affiliates/{id}
@@ -177,7 +172,7 @@ public class AffiliatesController : ControllerBase
             _context.Affiliates.Remove(affiliate);
             await _context.SaveChangesAsync();
             
-            return NoContent();
+            return Ok(new { message = "Afiliado eliminado exitosamente", id = id });
         }
         catch (Exception ex)
         {
@@ -185,14 +180,7 @@ public class AffiliatesController : ControllerBase
         }
     }
 
-    // GET: /api/Affiliates/test - Endpoint de prueba
-    [HttpGet("test")]
-    public IActionResult TestEndpoint()
-    {
-        return Ok(new { message = "El endpoint de prueba funciona correctamente!", timestamp = DateTime.Now });
-    }
-
-    // Método auxiliar para verificar si un afiliado existe
+    // Método auxiliar
     private async Task<bool> AffiliateExists(int id)
     {
         return await _context.Affiliates.AnyAsync(e => e.Id == id);
