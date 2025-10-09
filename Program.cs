@@ -44,7 +44,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection(); // Desactivado para pruebas locales en http
+app.UseHttpsRedirection(); 
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();

@@ -14,96 +14,94 @@ Layout = null;
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
+   <style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1030;
+        background: linear-gradient(180deg, #1a1d29 0%, #0d0f16 100%);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+    }
 
+    .main-content {
+        margin-left: 280px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .affiliate-card {
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+
+    .affiliate-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 4px;
+    }
+
+    .avatar-lg {
+        width: 80px;
+        height: 80px;
+        border: 4px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    #qr-reader-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+    }
+
+    #qr-reader-container.show {
+        max-height: 500px;
+    }
+
+    .nav-link.active {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        font-weight: 600;
+    }
+
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-gradient-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        color: white;
+    }
+
+    .badge-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    @@media (max-width: 991px) {
         .sidebar {
-            width: 280px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1030;
-            background: linear-gradient(180deg, #1a1d29 0%, #0d0f16 100%);
-            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            transform: translateX(-100%);
         }
-
         .main-content {
-            margin-left: 280px;
-            background-color: #f8f9fa;
-            min-height: 100vh;
+            margin-left: 0;
         }
-
-        .affiliate-card {
-            transition: all 0.3s ease;
-            border: none;
-            overflow: hidden;
-        }
-
-        .affiliate-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
-        }
-
-        .card-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 4px;
-        }
-
-        .avatar-lg {
-            width: 80px;
-            height: 80px;
-            border: 4px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        #qr-reader-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-        }
-
-        #qr-reader-container.show {
-            max-height: 500px;
-        }
-
-        .nav-link.active {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
-            color: white !important;
-            font-weight: 600;
-        }
-
-        .btn-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-        }
-
-        .btn-gradient-primary:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            color: white;
-        }
-
-        .badge-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        @@media (max-width: 991px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
-
 <!-- SIDEBAR -->
 <aside class="sidebar text-white p-4 d-none d-lg-flex flex-column">
     <div class="border-bottom border-secondary pb-4 mb-4">
@@ -927,7 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="carnet-preview mx-auto rounded-4 shadow-lg overflow-hidden" style="width: 450px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <div class="text-center p-4 border-bottom border-white border-opacity-25">
-                    <h2 class="fw-bold mb-1">SALUD LINUX EPS</h2>
+                    <h2 class="fw-bold mb-1">EPS VOYAGER S.A</h2>
                     <p class="small mb-0 opacity-75">Entidad Promotora de Salud</p>
                 </div>
                 <div class="p-4">
@@ -973,21 +971,264 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     window.editarAfiliado = cargarAfiliado;
-    
-    btnPrintCarnet.addEventListener('click', () => window.print());
-    
+
+    btnPrintCarnet.addEventListener('click', () => {
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+        const carnetHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Carnet - ${currentAffiliateData.fullName}</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Inter', Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    background: #f0f0f0;
+                    padding: 20px;
+                }
+                
+                .carnet-print {
+                    width: 450px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                }
+                
+                .carnet-header {
+                    text-align: center;
+                    padding: 24px;
+                    border-bottom: 1px solid rgba(255,255,255,0.25);
+                }
+                
+                .carnet-header h2 {
+                    font-size: 24px;
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                }
+                
+                .carnet-header p {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                .carnet-body {
+                    padding: 24px;
+                }
+                
+                .carnet-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    margin-bottom: 24px;
+                }
+                
+                .carnet-photo {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 12px;
+                    object-fit: cover;
+                    border: 4px solid white;
+                    flex-shrink: 0;
+                }
+                
+                .carnet-details h4 {
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin-bottom: 12px;
+                }
+                
+                .carnet-details p {
+                    font-size: 13px;
+                    margin-bottom: 6px;
+                }
+                
+                .carnet-details small {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                .carnet-qr {
+                    background: white;
+                    padding: 16px;
+                    border-radius: 12px;
+                    text-align: center;
+                }
+                
+                .carnet-qr img {
+                    width: 140px;
+                    height: 140px;
+                    margin-bottom: 8px;
+                }
+                
+                .carnet-qr p {
+                    color: #333;
+                    font-size: 13px;
+                    font-weight: 600;
+                    margin: 0;
+                }
+                
+                .carnet-footer {
+                    text-align: center;
+                    margin-top: 16px;
+                    padding-top: 16px;
+                    border-top: 1px solid rgba(255,255,255,0.25);
+                }
+                
+                .carnet-footer p {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                @@media print {
+                    body {
+                        background: white !important;
+                        padding: 0;
+                    }
+                    
+                    .carnet-print {
+                        box-shadow: none;
+                        page-break-inside: avoid;
+                        background: white !important;
+                        border: 3px solid #000;
+                    }
+                    
+                    /* ✅ TODO EL TEXTO EN NEGRO OSCURO */
+                    .carnet-header h2,
+                    .carnet-header p,
+                    .carnet-details h4,
+                    .carnet-details p,
+                    .carnet-details small,
+                    .carnet-footer p {
+                        color: #000 !important;
+                        opacity: 1 !important;
+                        font-weight: 900 !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    
+                    .carnet-photo {
+                        border: 4px solid #000 !important;
+                    }
+                    
+                    .carnet-header {
+                        border-bottom: 3px solid #000 !important;
+                    }
+                    
+                    .carnet-footer {
+                        border-top: 3px solid #000 !important;
+                    }
+                    
+                    .carnet-qr {
+                        background: white !important;
+                        border: 2px solid #000 !important;
+                    }
+                    
+                    .carnet-qr p {
+                        color: #000 !important;
+                        font-weight: 900 !important;
+                    }
+                }
+                
+                @@page {
+                    size: auto;
+                    margin: 10mm;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="carnet-print">
+                <div class="carnet-header">
+                    <h2>SALUD LINUX EPS</h2>
+                    <p>Entidad Promotora de Salud</p>
+                </div>
+                <div class="carnet-body">
+                    <div class="carnet-info">
+                        <img src="${currentAffiliateData.photoBase64 || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='}" 
+                             alt="Foto" class="carnet-photo">
+                        <div class="carnet-details">
+                            <h4>${currentAffiliateData.fullName}</h4>
+                            <p>📋 ${currentAffiliateData.documentId}</p>
+                            ${currentAffiliateData.email ? `<small>📧 ${currentAffiliateData.email}</small>` : ''}
+                        </div>
+                    </div>
+                    <div class="carnet-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(window.location.origin + '/Home/ManageAffiliate?doc=' + currentAffiliateData.documentId)}" 
+                             alt="QR Code" crossorigin="anonymous">
+                        <p>Doc: ${currentAffiliateData.documentId}</p>
+                    </div>
+                    <div class="carnet-footer">
+                        <p>📅 Generado: ${new Date().toLocaleDateString('es-CO')}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `;
+
+        printWindow.document.write(carnetHTML);
+        printWindow.document.close();
+    });
+
     btnDownloadCarnet.addEventListener('click', async () => {
         try {
-            addLoader(btnDownloadCarnet, 'Descargando...');
+            addLoader(btnDownloadCarnet, 'Generando...');
+
             const carnetElement = document.querySelector('.carnet-preview');
-            const canvasCarnet = await html2canvas(carnetElement, { scale: 2 });
+            const qrImg = document.getElementById('qrcodeImg');
+
+            // ✅ Esperar a que el QR esté completamente cargado
+            if (!qrImg.complete) {
+                showMessage('⏳ Cargando código QR...', 'info', 2000);
+                await new Promise((resolve, reject) => {
+                    qrImg.onload = resolve;
+                    qrImg.onerror = reject;
+                    setTimeout(resolve, 5000); // timeout de seguridad
+                });
+            }
+
+            // ✅ Pequeña pausa adicional para asegurar renderizado
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // ✅ Capturar con configuración optimizada para QR externo
+            const canvasCarnet = await html2canvas(carnetElement, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false,
+                imageTimeout: 15000,
+                removeContainer: false
+            });
+
             const link = document.createElement('a');
-            link.download = `carnet_${currentAffiliateData.documentId}.png`;
+            link.download = `carnet_${currentAffiliateData.documentId}_${Date.now()}.png`;
             link.href = canvasCarnet.toDataURL('image/png');
             link.click();
-            showMessage('Carnet descargado', 'success', 2000);
+
+            showMessage('✅ Carnet descargado con QR incluido', 'success', 2000);
         } catch(error) {
-            showMessage('Error al descargar', 'error');
+            console.error('Error al descargar:', error);
+            showMessage('❌ Error al descargar. Intente de nuevo.', 'error');
         } finally {
             removeLoader(btnDownloadCarnet);
         }
