@@ -3,193 +3,150 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - System EPS</title>
-    
-    @{
-        // Deshabilita el layout principal
-        Layout = null; 
-        ViewData["Title"] = "Turnero Digital";
-    }
-
-    <!-- Recursos de diseño (Tailwind y Fuentes) -->
+    <title>Turnero Digital - EPS VOYAGER</title>
+    <link rel="stylesheet" href="~/css/TurnDisplay.css" asp-append-version="true" />
+    @{ Layout = null; }
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
-    
-    <!-- Estilos específicos y animaciones -->
-    <style>
-        body {
-            /* Fondo blanco para replicar el estilo de la imagen */
-            background-color: #f8fafc; /* Tailwind gray-50 */
-            color: #1e293b; 
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            overflow: hidden; 
-        }
-
-        /* Colores Morados/Índigo consistentes con la referencia */
-        .header-bg {
-            background-color: #5b21b6; /* Tailwind Indigo-700 / Deep Purple */
-        }
-        
-        /* Animación de Parpadeo para la fila que está siendo llamada */
-        @@keyframes calling-flash {
-            0%, 100% { background-color: #a78bfa; } /* Indigo-300 */
-            50% { background-color: #c4b5fd; } /* Indigo-200 */
-        }
-        
-        .calling-row-effect {
-            animation: calling-flash 0.8s ease-in-out infinite alternate;
-        }
-
-        /* Estilo para los códigos de turno (grande y condensado) */
-        .turno-code {
-            font-family: 'Oswald', sans-serif; 
-            font-size: 5vw; 
-            font-weight: 900;
-            letter-spacing: -0.05em;
-        }
-
-        /* Estilo para el puesto de atención (similar al color azul de la referencia) */
-        .puesto-box {
-            background-color: #38bdf8; /* Tailwind Sky-400 */
-            color: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 3vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link />
 </head>
 <body class="flex flex-col h-screen">
-    <div class="flex flex-col h-full bg-white">
-        
-        <!-- HEADER Púrpura/Indigo (Superior) -->
-        <header class="header-bg text-white p-4 flex justify-between items-center shadow-lg">
-            <h1 class="text-3xl font-extrabold tracking-wider">SALUD LINUX</h1>
-            <h2 class="text-xl font-medium">Turnos de Espera</h2>
-        </header>
 
-        <!-- CONTENEDOR PRINCIPAL (GRID 1:4) -->
-        <div class="flex-grow grid grid-cols-5 p-4 gap-4 overflow-hidden">
-            
-            <!-- COLUMNA 1: PUESTO DE LLAMADA / RINGOW (Ocupa 1 de 5 columnas) -->
-            <div id="ringowBox" class="col-span-1 p-4 flex flex-col justify-start space-y-4">
-                <p class="text-gray-600 text-sm font-semibold mb-2">Puesto Llamando Ahora:</p>
-                <!-- La caja grande azul (RINGOW) -->
-                <div class="puesto-box shadow-xl h-48">
-                    <div id="mainDeskNumber">M1</div>
-                </div>
-            </div>
+<!-- HEADER -->
+<header class="bg-black bg-opacity-30 p-6 flex justify-between items-center shadow-2xl">
+    <h1 class="text-5xl font-bold tracking-wider">🏥 EPS VOYAGER</h1>
+    <div id="clock" class="text-5xl font-bold"></div>
+</header>
 
-            <!-- COLUMNA 2: TABLA DE TURNOS (Ocupa 4 de 5 columnas) -->
-            <div class="col-span-4 flex flex-col space-y-2">
+<!-- CONTENIDO PRINCIPAL -->
+<main class="flex-grow flex items-center justify-center p-8">
 
-                <!-- CABECERA DE LA TABLA (Misma altura que el header original) -->
-                <div class="grid grid-cols-4 gap-2 bg-indigo-600 text-white p-3 rounded-t-lg font-bold text-lg shadow-md">
-                    <div class="col-span-1">TURNO</div>
-                    <div class="col-span-2">USUARIO / IDENTIFICACIÓN</div>
-                    <div class="col-span-1 text-center">PUESTO</div>
-                </div>
+    <!-- TARJETA PRINCIPAL DEL TURNO -->
+    <div id="activeCallCard" class="bg-white text-gray-900 rounded-3xl shadow-2xl p-16 text-center calling-effect">
+        <p class="text-4xl font-bold text-gray-600 mb-4">TURNO</p>
+        <div id="mainTurnoCode" class="text-[18rem] font-bold leading-none text-purple-700">--</div>
 
-                <!-- FILA ACTIVA (Turno que está siendo llamado) -->
-                <div id="activeRow" class="grid grid-cols-4 gap-2 calling-row-effect bg-indigo-300 text-indigo-900 p-3 rounded-lg shadow-lg">
-                    <div id="mainTurnoCode" class="col-span-1 turno-code">AA5</div>
-                    <div id="mainAffiliate" class="col-span-2 flex flex-col text-sm font-medium">
-                        <span class="font-bold">Identificación: </span>
-                        <span>102365489432</span>
-                    </div>
-                    <div id="activeDesk" class="col-span-1 text-center font-extrabold text-3xl">M1</div>
-                </div>
-                
-                <!-- HISTORIAL / TURNOS ANTERIORES (Insertados por JS) -->
-                <div id="historyList" class="flex flex-col space-y-2">
-                    <!-- Filas insertadas aquí -->
-                </div>
-
-            </div>
+        <div class="mt-12 pt-8 border-t-4 border-gray-300">
+            <p class="text-4xl font-bold text-gray-600 mb-4">PUESTO</p>
+            <div id="mainDeskNumber" class="text-[12rem] font-bold leading-none text-blue-600">--</div>
         </div>
-
     </div>
 
-    <!-- Script de SignalR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
-    <script>
+</main>
+
+<!-- FOOTER CON ÚLTIMOS LLAMADOS -->
+<footer class="bg-black bg-opacity-40 p-6">
+    <h3 class="text-3xl font-bold mb-4 text-center">📋 ÚLTIMOS LLAMADOS</h3>
+    <div id="historyList" class="flex justify-center gap-6 flex-wrap">
+        <!-- Se llenarán por JavaScript -->
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const clockElement = document.getElementById('clock');
+        const activeCallCard = document.getElementById('activeCallCard');
+        const mainTurnoCode = document.getElementById('mainTurnoCode');
+        const mainDeskNumber = document.getElementById('mainDeskNumber');
+        const historyList = document.getElementById('historyList');
+
+        // Reloj
+        setInterval(() => {
+            const now = new Date();
+            clockElement.textContent = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        }, 1000);
+
+        // SignalR
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/queueHub") 
+            .withUrl("/queueHub")
             .withAutomaticReconnect()
             .build();
-            
-        // Referencias a los elementos principales
-        const activeRow = document.getElementById("activeRow");
-        const mainTurnoCode = document.getElementById("mainTurnoCode");
-        const mainDeskNumber = document.getElementById("mainDeskNumber");
-        const mainAffiliate = document.getElementById("mainAffiliate");
-        const activeDesk = document.getElementById("activeDesk");
-        const historyList = document.getElementById("historyList");
 
-        // Datos iniciales para que la pantalla no esté vacía
-        mainTurnoCode.textContent = '---';
-        mainDeskNumber.textContent = '---';
-        activeDesk.textContent = '---';
-        mainAffiliate.innerHTML = '<span class="text-gray-500">Esperando llamada...</span>';
+        // Renderizar historial simplificado
+        const renderHistory = (tickets) => {
+            if (!tickets || tickets.length === 0) {
+                historyList.innerHTML = '<div class="text-white text-xl">No hay historial</div>';
+                return;
+            }
 
+            historyList.innerHTML = tickets.slice(0, 5).map(t => `
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4 text-center fade-in">
+                    <div class="text-4xl font-bold">${t.ticketCode}</div>
+                    <div class="text-lg">${t.serviceDesk?.deskNumber ?? '--'}</div>
+                </div>
+            `).join('');
+        };
 
-        connection.on("ReceiveNewCall", (ticketCode, deskNumber, affiliateName = 'Identificación: N/A') => {
-            
-            // --- PASO 1: Mover el Turno Actual (Anterior) al Historial ---
-            
-            // Capturar el contenido de la fila activa antes de la actualización
-            const previousCode = mainTurnoCode.textContent;
-            const previousAffiliateHtml = mainAffiliate.innerHTML;
-            const previousDesk = activeDesk.textContent;
+        // Cargar datos iniciales
+        async function loadInitialData() {
+            try {
+                const response = await fetch('/api/Tickets/history/today');
+                if (!response.ok) throw new Error('Error al cargar historial');
 
+                const tickets = await response.json();
 
-            if (previousCode !== '---') {
+                if (tickets.length > 0) {
+                    const ultimo = tickets[0];
+                    mainTurnoCode.textContent = ultimo.ticketCode;
+                    mainDeskNumber.textContent = ultimo.serviceDesk?.deskNumber ?? '--';
+                }
+
+                renderHistory(tickets.slice(1));
+            } catch (e) {
+                console.error("Error cargando datos iniciales:", e);
+            }
+        }
+
+        // Evento: Nuevo llamado
+        connection.on("ReceiveNewCall", (ticket) => {
+            console.log("📢 TV: Nuevo llamado", ticket);
+
+            // Mover el actual al historial
+            const prevCode = mainTurnoCode.textContent;
+            if (prevCode !== '--') {
                 const prevItem = document.createElement('div');
-                // Estilo para fila anterior (fondo gris suave)
-                prevItem.className = 'history-item-new grid grid-cols-4 gap-2 bg-gray-200 text-gray-700 p-3 rounded-lg opacity-80';
+                prevItem.className = 'bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4 text-center fade-in';
                 prevItem.innerHTML = `
-                    <div class="col-span-1 turno-code">${previousCode}</div>
-                    <div class="col-span-2 flex flex-col text-sm font-medium">${previousAffiliateHtml}</div>
-                    <div class="col-span-1 text-center font-extrabold text-3xl">${previousDesk}</div>
+                    <div class="text-4xl font-bold">${prevCode}</div>
+                    <div class="text-lg">${mainDeskNumber.textContent}</div>
                 `;
-                
-                // Inserta el turno anterior al inicio del historial
                 historyList.insertBefore(prevItem, historyList.firstChild);
-                
-                // Limitar el historial visible a 3 o 4 filas después de la activa
-                while (historyList.children.length > 3) {
+
+                // Limitar a 5 items
+                while (historyList.children.length > 5) {
                     historyList.removeChild(historyList.lastChild);
                 }
             }
-            
-            // --- PASO 2: Actualizar la Fila Activa con la Nueva Llamada ---
-            
-            // 2.1 Activar animación de "llamando" en la fila activa
-            activeRow.classList.add('calling-row-effect');
-            
-            // 2.2 Detener la animación después de 1.5 segundos
-            setTimeout(() => { 
-                activeRow.classList.remove('calling-row-effect'); 
-            }, 1500);
 
-            // 2.3 Actualizar contenido
-            mainTurnoCode.textContent = ticketCode;
-            mainDeskNumber.textContent = deskNumber; // Para el bloque RINGOW
-            activeDesk.textContent = deskNumber; // Para la columna PUESTO
-            
-            // Reconstruir el texto de identificación del usuario
-            mainAffiliate.innerHTML = `
-                <span class="font-bold">Usuario:</span> 
-                <span class="text-xs">Afiliado: ${affiliateName}</span>
-            `;
+            // Actualizar turno actual
+            mainTurnoCode.textContent = ticket.ticketCode;
+            mainDeskNumber.textContent = ticket.serviceDesk?.deskNumber ?? '--';
+
+            // Animación
+            activeCallCard.classList.remove('calling-effect');
+            setTimeout(() => activeCallCard.classList.add('calling-effect'), 10);
         });
 
-        connection.start().catch(err => console.error(err.toString()));
+        // Iniciar
+        async function start() {
+            try {
+                await connection.start();
+                console.log("✅ Conectado a SignalR (TV)");
+                await loadInitialData();
+            } catch (err) {
+                console.error("❌ Error de conexión:", err);
+                setTimeout(start, 5000);
+            }
+        }
 
-    </script>
+        connection.onreconnected(() => {
+            console.log("🔄 Reconectado");
+            loadInitialData();
+        });
+
+        start();
+    });
+</script>
 </body>
 </html>

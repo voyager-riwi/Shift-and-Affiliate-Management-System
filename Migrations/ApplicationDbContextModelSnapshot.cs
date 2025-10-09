@@ -48,7 +48,7 @@ namespace System_EPS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Affiliates");
+                    b.ToTable("Affiliates", (string)null);
                 });
 
             modelBuilder.Entity("System_EPS.Models.ServiceDesk", b =>
@@ -68,7 +68,7 @@ namespace System_EPS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServiceDesks");
+                    b.ToTable("ServiceDesks", (string)null);
                 });
 
             modelBuilder.Entity("System_EPS.Models.Ticket", b =>
@@ -104,7 +104,7 @@ namespace System_EPS.Migrations
 
                     b.HasIndex("ServiceDeskId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("System_EPS.Models.Ticket", b =>

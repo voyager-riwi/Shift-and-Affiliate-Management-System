@@ -1,0 +1,305 @@
+/* ============================================
+   DASHBOARD - ESTILOS PERSONALIZADOS
+   Sistema EPS - Panel de Control
+   ============================================ */
+
+/* Importar fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;700&display=swap');
+
+/* ============================================
+   VARIABLES CSS
+   ============================================ */
+:root {
+    /* Colores principales */
+    --dashboard-success: #10b981;
+    --dashboard-success-dark: #059669;
+    --dashboard-purple: #8b5cf6;
+    --dashboard-purple-dark: #6d28d9;
+    --dashboard-danger: #ef4444;
+    --dashboard-danger-dark: #dc2626;
+
+    /* Tipografías */
+    --font-inter: 'Inter', sans-serif;
+    --font-oswald: 'Oswald', sans-serif;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   ESTILOS BASE
+   ============================================ */
+body {
+    font-family: var(--font-inter);
+    background-color: #f3f4f6;
+}
+
+/* Clase de fuente Oswald */
+.font-oswald {
+    font-family: var(--font-oswald) !important;
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADA
+   ============================================ */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+}
+
+/* ============================================
+   BOTONES DEL DASHBOARD
+   ============================================ */
+
+/* Botón principal "Llamar Siguiente" */
+.btn-llamar {
+    background: linear-gradient(135deg, var(--dashboard-success) 0%, var(--dashboard-success-dark) 100%) !important;
+    color: white !important;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-inter);
+    box-sizing: border-box;
+}
+
+.btn-llamar:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.btn-llamar:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-llamar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botón de reinicio del sistema */
+.btn-reset {
+    background: linear-gradient(135deg, var(--dashboard-danger) 0%, var(--dashboard-danger-dark) 100%) !important;
+    color: white !important;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-inter);
+    box-sizing: border-box;
+}
+
+.btn-reset:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-reset:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-reset:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   TARJETA "ATENDIENDO AHORA"
+   ============================================ */
+.card-atendiendo {
+    background: linear-gradient(135deg, var(--dashboard-purple) 0%, var(--dashboard-purple-dark) 100%) !important;
+    color: white !important;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-xl);
+    transition: all 0.3s ease;
+
+    /* Altura fija para evitar que se estire */
+    min-height: 200px;
+    max-height: 200px;
+
+    /* Centrar contenido */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Número del turno actual */
+#turnoActual {
+    font-size: clamp(3rem, 8vw, 4rem);
+    line-height: 1;
+    font-weight: 800;
+    margin: 0.5rem 0;
+    color: white;
+}
+
+/* Nombre del afiliado */
+#afiliadoActual {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+/* Animación de pulso para la tarjeta activa */
+@keyframes pulse-atendiendo {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: var(--shadow-xl);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 25px 30px -8px rgba(139, 92, 246, 0.3);
+    }
+}
+
+.card-atendiendo.active {
+    animation: pulse-atendiendo 0.6s ease-in-out 3;
+}
+
+/* Animación de entrada para elementos de lista */
+@keyframes slide-in-dashboard {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.list-item-animation {
+    animation: slide-in-dashboard 0.3s ease-out forwards;
+}
+
+/* ============================================
+   ELEMENTOS DE LISTA
+   ============================================ */
+
+/* Items de la lista de espera */
+#listaEspera li {
+    padding: 1rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#listaEspera li:hover {
+    background-color: #f9fafb;
+    transform: translateX(3px);
+}
+
+/* ============================================
+   TABLA DE HISTORIAL
+   ============================================ */
+
+/* Filas de la tabla con hover */
+#historialHoy tr {
+    transition: background-color 0.2s ease;
+}
+
+#historialHoy tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Header sticky de la tabla */
+thead.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f9fafb;
+}
+
+/* ============================================
+   UTILIDADES ESPECÍFICAS DEL DASHBOARD
+   ============================================ */
+
+/* Contenedor principal del dashboard */
+.dashboard-main {
+    margin-left: 16rem; /* Ancho de la sidebar */
+    transition: margin-left 0.3s ease;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .dashboard-main {
+        margin-left: 0;
+    }
+
+    .card-atendiendo {
+        min-height: 150px;
+        max-height: 150px;
+        padding: 1.5rem;
+    }
+
+    #turnoActual {
+        font-size: clamp(2.5rem, 6vw, 3.5rem);
+    }
+}
+
+/* Móviles */
+@media (max-width: 768px) {
+    .btn-llamar,
+    .btn-reset {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .card-atendiendo {
+        margin-top: 1rem;
+        padding: 1rem;
+        min-height: 120px;
+        max-height: 120px;
+    }
+
+    #turnoActual {
+        font-size: 2.5rem;
+    }
+}

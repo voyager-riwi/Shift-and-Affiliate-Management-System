@@ -1,31 +1,28 @@
-@* CORRECCIÓN 1: Se eliminó la línea '@model System_EPS.Models.ServiceDesk' *@
+@model System_EPS.Models.ServiceDesk 
 @{
     ViewData["Title"] = "Panel de Control";
+    Layout = "_Layout";
 }
 
 @section Styles {
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <style>
-        /* ... (tus estilos aquí, están bien como están) ... */
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        main { margin-left: 16rem; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="~/css/Dashboard.css" asp-append-version="true" />
 }
 
 <div class="flex min-h-screen bg-gray-50">
 
-    <aside class="sidebar bg-gray-800 text-white p-4">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-gray-800 text-white p-4 flex flex-col shadow-lg fixed h-full z-10">
         <div class="text-2xl font-extrabold text-blue-400 mb-8 pt-2 border-b border-gray-700 pb-4">
             <i class="fas fa-heartbeat mr-2"></i> System EPS
         </div>
 
-        <nav>
+        <nav class="flex-grow">
             <h3 class="text-xs uppercase font-semibold text-gray-400 mb-3 ml-2">Módulos</h3>
             
-            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150">
+            <a href="@Url.Action("Dashboard", "Home")" class="flex items-center p-3 rounded-lg text-gray-100 bg-gray-700 font-medium mb-2 transition duration-150 hover:bg-gray-600">
                 <i class="fas fa-desktop w-6 text-lg text-green-400"></i>
                 <span class="ml-3 font-medium">Panel de Control</span>
             </a>
@@ -53,21 +50,30 @@
         </div>
     </aside>
 
-    <main class="flex-1 p-4 md:p-8">
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 ml-64 p-8">
         <div class="container mx-auto">
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-6">Panel de Control de Turnos</h1>
             
-            <div class="flex flex-wrap -mx-4">
+            <!-- Header con botón de reinicio -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-extrabold text-gray-900">Panel de Control de Turnos</h1>
+                <button id="btnResetSystem" class="btn-reset text-white px-6 py-3 rounded-lg font-bold shadow-lg">
+                    <i class="fas fa-redo mr-2"></i> Reiniciar Sistema
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <div class="w-full lg:w-1/3 px-4 mb-6 lg:mb-0">
+                <!-- COLUMNA 1: Panel de Operación -->
+                <div class="lg:col-span-1">
                     <div class="bg-white rounded-xl shadow-lg">
-                        <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center">
-                            <i class="fas fa-desktop me-3"></i> Panel de Operación
+                        <div class="p-5 bg-gray-700 text-white font-semibold text-xl flex items-center rounded-t-xl">
+                            <i class="fas fa-desktop mr-3"></i> Panel de Operación
                         </div>
                         <div class="p-6">
                             <div class="mb-6">
                                 <label for="selectServiceDesk" class="block text-gray-700 text-sm font-bold mb-2">
-                                    <i class="fas fa-cash-register me-1"></i> Puesto de Atención:
+                                    <i class="fas fa-cash-register mr-1"></i> Puesto de Atención:
                                 </label>
                                 <select id="selectServiceDesk" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                     @if (ViewBag.ServiceDesks != null)
@@ -79,45 +85,53 @@
                                     }
                                 </select>
                             </div>
-                            <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold text-white">
-                                <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
+                            <button id="btnLlamarSiguiente" class="btn-llamar w-full p-4 rounded-xl text-lg font-bold text-white shadow-lg">
+                                <i class="fas fa-phone-volume mr-2"></i> Llamar Siguiente
                             </button>
-                            <div class="card-atendiendo text-center">
-                                <h5 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-user-nurse me-2"></i> Atendiendo Ahora</h5>
-                                <div id="turnoActual" class="turno-actual">- - -</div>
-                                <div id="afiliadoActual" class="afiliado-actual">Esperando turno...</div>
+                            <div class="card-atendiendo text-center shadow-xl">
+                                <h5 class="text-xl font-bold text-white mb-2">
+                                    <i class="fas fa-user-nurse mr-2"></i> Atendiendo Ahora
+                                </h5>
+                                <div id="turnoActual" class="font-oswald text-6xl font-extrabold text-white mb-2">- - -</div>
+                                <div id="afiliadoActual" class="text-white text-base">Esperando turno...</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="w-full lg:w-2/3 px-4">
+                <!-- COLUMNA 2: Fila de Espera -->
+                <div class="lg:col-span-1">
                     <h3 class="text-2xl font-extrabold text-gray-800 mb-3 flex items-center">
-                        <i class="fas fa-users me-3 text-blue-600"></i> Fila de Espera
+                        <i class="fas fa-users mr-3 text-blue-600"></i> Fila de Espera
                     </h3>
-                    <div class="bg-white rounded-xl shadow-lg lista-espera-container mb-6">
-                        <ul id="listaEspera" class="divide-y divide-gray-200">
+                    <div class="bg-white rounded-xl shadow-lg custom-scrollbar overflow-y-auto" style="max-height: calc(100vh - 200px);">
+                        <ul id="listaEspera" class="divide-y divide-gray-200 p-2">
                             <li class="p-4 text-gray-500 font-medium text-center">Cargando...</li>
                         </ul>
                     </div>
-                    <h3 class="text-2xl font-extrabold text-gray-800 mt-6 mb-3 flex items-center">
-                        <i class="fas fa-history me-3 text-indigo-600"></i> Historial de Hoy
+                </div>
+
+                <!-- COLUMNA 3: Historial de Hoy -->
+                <div class="lg:col-span-1">
+                    <h3 class="text-2xl font-extrabold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-history mr-3 text-indigo-600"></i> Historial de Hoy
                     </h3>
-                    <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                    <div class="bg-white rounded-xl shadow-lg custom-scrollbar overflow-y-auto" style="max-height: calc(100vh - 200px);">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turno</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Atención</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Afiliado</th>
-                            </tr>
+                            <thead class="bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Turno</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Afiliado</th>
+                                </tr>
                             </thead>
                             <tbody id="historialHoy" class="bg-white divide-y divide-gray-200">
-                                <tr><td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Cargando...</td></tr>
+                                <tr><td colspan="3" class="px-4 py-4 text-center text-sm text-gray-500">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
             </div>
         </div>
     </main>
@@ -126,4 +140,33 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script src="~/js/dashboard.js"></script>
+    <script>
+        document.getElementById('btnResetSystem')?.addEventListener('click', async () => {
+            if (!confirm('¿Está seguro de reiniciar el sistema? Esto eliminará todos los turnos del día.')) {
+                return;
+            }
+            
+            const btn = document.getElementById('btnResetSystem');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Reiniciando...';
+            
+            try {
+                const response = await fetch('/api/Tickets/reset', { method: 'POST' });
+                if (response.ok) {
+                    alert('Sistema reiniciado correctamente');
+                    // Recargar la página para limpiar todo
+                    location.reload();
+                } else {
+                    alert('Error al reiniciar el sistema');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo mr-2"></i> Reiniciar Sistema';
+            }
+        });
+    </script>
+}
 }

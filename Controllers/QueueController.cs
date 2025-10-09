@@ -1,69 +1,42 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using System_EPS.Data;
-using System_EPS.Enums;
-using System_EPS.Hubs; 
-using System_EPS.Models;
+using System_EPS.Services;
 
 namespace System_EPS.Controllers
 {
-    // Define el controlador como una API para manejar la acción POST del Dashboard
     [Route("[controller]")]
     public class QueueController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IHubContext<QueueHub> _hubContext; // Inyección de SignalR
+        private readonly ITicketService _ticketService;
 
-        public QueueController(ApplicationDbContext context, IHubContext<QueueHub> hubContext)
+        public QueueController(ITicketService ticketService)
         {
-            _context = context;
-            _hubContext = hubContext;
+            _ticketService = ticketService;
         }
 
-        // Endpoint para que el Dashboard llame al siguiente turno
-        // Se accede mediante una petición POST a /Queue/CallNext
+        // Este método ahora DELEGA al servicio en lugar de tener lógica propia
         [HttpPost("CallNext")]
         public async Task<IActionResult> CallNext([FromForm] int serviceDeskId)
         {
-            // 1. Obtener el siguiente ticket en estado de espera, incluyendo el Afiliado
-            var nextTicket = await _context.Tickets
-                .Include(t => t.Affiliate) // <--- Crucial para obtener el FullName
-                .Where(t => t.Status == TicketStatus.Waiting)
-                .OrderBy(t => t.CreatedAt) // Prioriza el ticket más antiguo
-                .FirstOrDefaultAsync();
-
-            if (nextTicket == null)
+            if (serviceDeskId <= 0)
             {
-                // No hay tickets para llamar
+                return BadRequest(new { message = "ID de puesto inválido." });
+            }
+
+            var ticket = await _ticketService.CallNextTicketAsync(serviceDeskId);
+            
+            if (ticket == null)
+            {
                 return NotFound(new { message = "No hay tickets en espera." });
             }
 
-            // 2. Actualizar el estado del ticket y asignarlo al puesto
-            var desk = await _context.ServiceDesks.FindAsync(serviceDeskId);
-            if (desk == null) 
-                return NotFound(new { message = "Puesto de servicio no encontrado." });
+            // Importante: Incluir la información del puesto
+            var deskNumber = ticket.ServiceDesk?.DeskNumber ?? "N/A";
+            var affiliateName = ticket.Affiliate?.FullName ?? "Visitante";
 
-            nextTicket.Status = TicketStatus.InService;
-            nextTicket.ServedAt = DateTime.Now; // Marca la hora de inicio de atención
-            nextTicket.ServiceDeskId = serviceDeskId;
-            await _context.SaveChangesAsync();
-            
-            // 3. PREPARAR Y ENVIAR LA SEÑAL a TurnDisplay a través de SignalR
-            string ticketCode = nextTicket.TicketCode;
-            string deskNumber = desk.DeskNumber.ToString(); 
-            // Obtiene el nombre completo del afiliado o un valor por defecto
-            string affiliateName = nextTicket.Affiliate?.FullName ?? "Afiliado Desconocido"; 
-
-            // Envía la señal a todos los clientes suscritos (TurnDisplay.cshtml)
-            await _hubContext.Clients.All.SendAsync("ReceiveNewCall", ticketCode, deskNumber);
-
-            // 4. Devuelve el resultado en formato JSON al Dashboard (petición AJAX)
             return Ok(new 
             {
-                ticketCode = ticketCode, 
+                ticketCode = ticket.TicketCode,
                 deskNumber = deskNumber,
                 afiliado = affiliateName
             });

@@ -1,53 +1,141 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System_EPS.Data;
+using System_EPS.Hubs;
 using System_EPS.Services;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
-[ApiController]
-[Route("api/[controller]")]
-public class TicketsController : ControllerBase
+namespace System_EPS.Controllers
 {
-    private readonly ITicketService _ticketService;
-
-    public TicketsController(ITicketService ticketService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TicketsController : ControllerBase
     {
-        _ticketService = ticketService;
-    }
+        private readonly ITicketService _ticketService;
+        private readonly IHubContext<QueueHub> _hubContext;
+        private readonly ApplicationDbContext _context;
 
-    [HttpGet]
-    public async Task<IActionResult> GetWaitingTickets()
-    {
-        var tickets = await _ticketService.GetWaitingTicketsAsync();
-        return Ok(tickets);
-    }
-
-    [HttpGet("history/today")]
-    public async Task<IActionResult> GetTodaysHistory()
-    {
-        var history = await _ticketService.GetTodaysHistoryAsync();
-        return Ok(history);
-    }
-
-    // ▼▼▼ MÉTODO CORREGIDO ▼▼▼
-    [HttpPost("{documentId?}")]
-    public async Task<IActionResult> CreateTicket(string documentId = null) // Se añade '= null' para hacerlo opcional
-    {
-        var ticket = await _ticketService.CreateNextTicketAsync(documentId);
-        return Ok(ticket);
-    }
-
-    [HttpPost("next/{serviceDeskId}")]
-    public async Task<IActionResult> CallNextTicket(int serviceDeskId)
-    {
-        if (serviceDeskId <= 0)
+        public TicketsController(
+            ITicketService ticketService, 
+            IHubContext<QueueHub> hubContext,
+            ApplicationDbContext context)
         {
-            return BadRequest("El Id del puesto de atención no es válido.");
+            _ticketService = ticketService;
+            _hubContext = hubContext;
+            _context = context;
         }
-        
-        var ticket = await _ticketService.CallNextTicketAsync(serviceDeskId);
-        if (ticket == null)
+
+        // ✅ CAMBIO: Agregar ruta explícita
+        [HttpGet]
+        [HttpGet("waiting")] // ← Agregar esta línea para compatibilidad
+        public async Task<IActionResult> GetWaitingTickets()
         {
-            return NotFound("No hay tiquetes en espera.");
+            try
+            {
+                var tickets = await _ticketService.GetWaitingTicketsAsync();
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en GetWaitingTickets: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = ex.Message, details = ex.StackTrace });
+            }
         }
-        return Ok(ticket);
+
+        [HttpGet("history/today")]
+        public async Task<IActionResult> GetTodaysHistory()
+        {
+            try
+            {
+                var history = await _ticketService.GetTodaysHistoryAsync();
+                return Ok(history);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en GetTodaysHistory: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = ex.Message, details = ex.StackTrace });
+            }
+        }
+
+        [HttpPost("{documentId?}")]
+        public async Task<IActionResult> CreateTicket(string documentId = null)
+        {
+            try
+            {
+                var ticket = await _ticketService.CreateNextTicketAsync(documentId);
+                
+                var waitingList = await _ticketService.GetWaitingTicketsAsync();
+                await _hubContext.Clients.All.SendAsync("UpdateWaitingList", waitingList);
+
+                return Ok(ticket);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en CreateTicket: {ex.Message}");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("next/{serviceDeskId}")]
+        public async Task<IActionResult> CallNextTicket(int serviceDeskId)
+        {
+            try
+            {
+                if (serviceDeskId <= 0)
+                {
+                    return BadRequest("El Id del puesto de atención no es válido.");
+                }
+
+                var ticket = await _ticketService.CallNextTicketAsync(serviceDeskId);
+                if (ticket == null)
+                {
+                    return NotFound("No hay tiquetes en espera.");
+                }
+
+                await _hubContext.Clients.All.SendAsync("ReceiveNewCall", ticket);
+                var waitingList = await _ticketService.GetWaitingTicketsAsync();
+                await _hubContext.Clients.All.SendAsync("UpdateWaitingList", waitingList);
+
+                Console.WriteLine($"✅ Turno {ticket.TicketCode} llamado correctamente");
+
+                return Ok(ticket);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en CallNextTicket: {ex.Message}");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetSystem()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var todayTickets = await _context.Tickets
+                    .Where(t => t.CreatedAt.Date == today)
+                    .ToListAsync();
+                
+                _context.Tickets.RemoveRange(todayTickets);
+                await _context.SaveChangesAsync();
+                
+                await _hubContext.Clients.All.SendAsync("SystemReset");
+                
+                Console.WriteLine("✅ Sistema reiniciado correctamente");
+                
+                return Ok(new { message = "Sistema reiniciado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en ResetSystem: {ex.Message}");
+                return StatusCode(500, new { message = "Error al reiniciar el sistema", error = ex.Message });
+            }
+        }
     }
 }

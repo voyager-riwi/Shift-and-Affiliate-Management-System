@@ -1,0 +1,24 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Oswald', sans-serif;
+    overflow: hidden;
+    color: white;
+}
+
+/* Animación de llamado */
+@keyframes calling-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.calling-effect {
+    animation: calling-pulse 0.5s ease-in-out 4;
+}
+
+/* Animación de entrada */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+}

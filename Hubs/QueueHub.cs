@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
+﻿// Hubs/QueueHub.cs
+using Microsoft.AspNetCore.SignalR;
 
-namespace System_EPS.Hubs
+namespace System_EPS.Hubs;
+
+public class QueueHub : Hub
 {
-    public class QueueHub : Hub
-    {
-    }
+
 }
