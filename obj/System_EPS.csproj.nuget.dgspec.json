@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\System_EPS.csproj": {}
+    "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\System_EPS.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\System_EPS.csproj": {
+    "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\System_EPS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\System_EPS.csproj",
+        "projectUniqueName": "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\System_EPS.csproj",
         "projectName": "System_EPS",
-        "projectPath": "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\System_EPS.csproj",
+        "projectPath": "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\System_EPS.csproj",
         "packagesPath": "C:\\Users\\Brahiam\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\obj\\",
+        "outputPath": "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Brahiam\\AppData\\Roaming\\NuGet\\NuGet.Config"

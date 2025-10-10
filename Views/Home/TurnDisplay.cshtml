@@ -8,7 +8,6 @@
     @{ Layout = null; }
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
-    <link />
 </head>
 <body class="flex flex-col h-screen">
 
@@ -57,6 +56,75 @@
             clockElement.textContent = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
         }, 1000);
 
+        // 🔔 FUNCIÓN PARA GENERAR SONIDO DE CAMPANA
+        function reproducirCampana() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+
+                console.log('🔔 Campanita reproducida');
+            } catch (error) {
+                console.error('❌ Error al reproducir campana:', error);
+            }
+        }
+
+        // 🔊 FUNCIÓN DE VOZ
+        function anunciarTurno(ticketCode, deskNumber) {
+            // Cancelar cualquier anuncio anterior
+            speechSynthesis.cancel();
+
+            // 🔔 REPRODUCIR CAMPANA PRIMERO
+            reproducirCampana();
+
+            // Preparar el mensaje
+            const mensaje = `Turno ${ticketCode}, Puesto ${deskNumber}`;
+            const utterance = new SpeechSynthesisUtterance(mensaje);
+
+            // Configuración de la voz
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            // Intentar usar una voz en español si está disponible
+            const voices = speechSynthesis.getVoices();
+            const spanishVoice = voices.find(voice =>
+                voice.lang.startsWith('es') || voice.lang.includes('ES')
+            );
+
+            if (spanishVoice) {
+                utterance.voice = spanishVoice;
+            }
+
+            // Esperar que termine la campana antes de hablar (800ms)
+            setTimeout(() => {
+                speechSynthesis.speak(utterance);
+                console.log(`🔊 Anunciando: ${mensaje}`);
+            }, 800);
+        }
+
+        // Cargar voces (necesario para algunos navegadores)
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                const voices = speechSynthesis.getVoices();
+                console.log('Voces disponibles:', voices.filter(v => v.lang.startsWith('es')));
+            };
+        }
+
         // SignalR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/queueHub")
@@ -101,6 +169,8 @@
         // Evento: Nuevo llamado
         connection.on("ReceiveNewCall", (ticket) => {
             console.log("📢 TV: Nuevo llamado", ticket);
+            console.log("🎫 TicketCode:", ticket.ticketCode);
+            console.log("🏢 DeskNumber:", ticket.serviceDesk?.deskNumber);
 
             // Mover el actual al historial
             const prevCode = mainTurnoCode.textContent;
@@ -120,8 +190,17 @@
             }
 
             // Actualizar turno actual
-            mainTurnoCode.textContent = ticket.ticketCode;
-            mainDeskNumber.textContent = ticket.serviceDesk?.deskNumber ?? '--';
+            const newTicketCode = ticket.ticketCode;
+            const newDeskNumber = ticket.serviceDesk?.deskNumber ?? '--';
+
+            mainTurnoCode.textContent = newTicketCode;
+            mainDeskNumber.textContent = newDeskNumber;
+
+            // 🔊 ANUNCIAR EL TURNO CON VOZ - CON DELAY PARA ASEGURAR
+            console.log("🔊 Intentando anunciar...");
+            setTimeout(() => {
+                anunciarTurno(newTicketCode, newDeskNumber);
+            }, 300); // Pequeño delay para asegurar que el navegador esté listo
 
             // Animación
             activeCallCard.classList.remove('calling-effect');

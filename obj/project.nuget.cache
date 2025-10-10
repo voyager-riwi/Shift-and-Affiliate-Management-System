@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "I5rfsBlA+Og=",
+  "dgSpecHash": "6Gn3651vk+0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Brahiam\\Documents\\System_EPS_Corregido\\System_EPS.csproj",
+  "projectFilePath": "C:\\Users\\Brahiam\\Documents\\COPIA_EPS_VOYAGER\\System_EPS_Corregido\\System_EPS.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Brahiam\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Brahiam\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
