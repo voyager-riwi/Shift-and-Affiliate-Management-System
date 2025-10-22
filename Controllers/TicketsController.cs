@@ -117,24 +117,32 @@ namespace System_EPS.Controllers
         {
             try
             {
-                var today = DateTime.Today;
-                var todayTickets = await _context.Tickets
-                    .Where(t => t.CreatedAt.Date == today)
-                    .ToListAsync();
-                
-                _context.Tickets.RemoveRange(todayTickets);
+                // Eliminar TODOS los tickets sin filtrar
+                var allTickets = await _context.Tickets.ToListAsync();
+
+                _context.Tickets.RemoveRange(allTickets);
                 await _context.SaveChangesAsync();
-                
+
                 await _hubContext.Clients.All.SendAsync("SystemReset");
-                
-                Console.WriteLine("✅ Sistema reiniciado correctamente");
-                
-                return Ok(new { message = "Sistema reiniciado correctamente" });
+
+                Console.WriteLine($"✅ Sistema reiniciado: {allTickets.Count} tickets eliminados");
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Sistema reiniciado correctamente",
+                    deletedCount = allTickets.Count
+                });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Error en ResetSystem: {ex.Message}");
-                return StatusCode(500, new { message = "Error al reiniciar el sistema", error = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al reiniciar el sistema",
+                    error = ex.Message
+                });
             }
         }
     }

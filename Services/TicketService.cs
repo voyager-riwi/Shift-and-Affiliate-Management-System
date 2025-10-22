@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace System_EPS.Services;
 
@@ -15,11 +16,16 @@ public class TicketService : ITicketService
 {
     private readonly ApplicationDbContext _context;
     private readonly IHubContext<QueueHub> _hubContext;
+    private readonly IServiceProvider _serviceProvider;
 
-    public TicketService(ApplicationDbContext context, IHubContext<QueueHub> hubContext)
+    public TicketService(
+        ApplicationDbContext context, 
+        IHubContext<QueueHub> hubContext,
+        IServiceProvider serviceProvider)
     {
         _context = context;
         _hubContext = hubContext;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<Ticket> CreateNextTicketAsync(string documentId = null)
@@ -36,7 +42,6 @@ public class TicketService : ITicketService
             }
         }
 
-        // Generar código de turno
         var ticketCount = await _context.Tickets.CountAsync(t => t.CreatedAt.Date == DateTime.Today);
         var ticketNumber = ticketCount + 1;
         
@@ -51,7 +56,37 @@ public class TicketService : ITicketService
         _context.Tickets.Add(newTicket);
         await _context.SaveChangesAsync();
         
-        Console.WriteLine($"✅ Ticket creado: {newTicket.TicketCode}");
+        Console.WriteLine($"✅ Ticket creado: {newTicket.TicketCode} con ID: {newTicket.Id}");
+        
+        var ticketId = newTicket.Id;
+        Console.WriteLine($"🖨️ Iniciando tarea de impresión en segundo plano para ticket ID: {ticketId}");
+        
+        // ⭐ CREAR EL SCOPE ANTES DEL TASK.RUN
+        var scope = _serviceProvider.CreateScope();
+        
+        _ = Task.Run(async () => 
+        {
+            try
+            {
+                Console.WriteLine($"⏳ Esperando 500ms antes de imprimir...");
+                await Task.Delay(500);
+                
+                Console.WriteLine($"🔧 Usando scope para impresión...");
+                using (scope)
+                {
+                    var printService = scope.ServiceProvider.GetRequiredService<IPrintService>();
+                    
+                    Console.WriteLine($"📞 Llamando a PrintTicketAsync para ticket {ticketId}...");
+                    await printService.PrintTicketAsync(ticketId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ ERROR en tarea de impresión: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                scope?.Dispose();
+            }
+        });
         
         return newTicket;
     }
@@ -75,7 +110,6 @@ public class TicketService : ITicketService
         
         await _context.SaveChangesAsync();
         
-        // Recargar el ServiceDesk en el ticket
         await _context.Entry(nextTicket).Reference(t => t.ServiceDesk).LoadAsync();
         
         Console.WriteLine($"✅ Ticket {nextTicket.TicketCode} llamado en puesto {desk.DeskNumber}");

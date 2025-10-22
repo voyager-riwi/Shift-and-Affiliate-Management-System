@@ -194,10 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputDocumento.value = ''; // Limpiar campo al volver
     });
     
-    function imprimirTiquete(ticketId) {
-        const url = `/Print/Ticket/${ticketId}`;
-        window.open(url, 'ImpresionTiquete', 'width=300,height=300,left=100,top=100');
-    }
+     
 
     /**
      * Genera un turno para el afiliado actual (identificado o anónimo).
@@ -232,8 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-7xl font-black text-blue-600 my-4">${nuevoTiquete.ticketCode}</p>
                 <p class="text-xl text-gray-700">Su tiquete se está imprimiendo. Gracias por su espera.</p>`;
             
-            imprimirTiquete(nuevoTiquete.id);
-
         } catch (error) {
             console.error('Error al pedir el turno:', error);
             showAlert('Error de Servicio', `No se pudo generar su turno. ${error.message}`);

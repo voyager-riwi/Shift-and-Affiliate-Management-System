@@ -12,7 +12,7 @@ namespace System_EPS.Controllers
         {
             _context = context;
         }
-
+        
         // Vista para el tiquete de turno
         public async Task<IActionResult> Ticket(int id)
         {

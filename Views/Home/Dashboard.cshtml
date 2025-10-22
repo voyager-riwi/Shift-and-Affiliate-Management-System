@@ -1,7 +1,5 @@
 @{
-    ViewData["Title"] = "Panel de Control";
-    // Usar un layout de Bootstrap si lo tienes, o dejarlo como está.
-    // Layout = "_LayoutBootstrap"; 
+ViewData["Title"] = "Panel de Control";
 }
 
 <!DOCTYPE html>
@@ -12,9 +10,10 @@
     <title>@ViewData["Title"] - System EPS</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="~/css/Dashboard.css" asp-append-version="true" />
 </head>
 <body>
@@ -41,41 +40,41 @@
             <i class="fas fa-tv text-danger"></i><span class="ms-3">Pantalla de Llamadas</span>
         </a>
     </nav>
-    
+
     <div class="mt-auto border-top border-secondary pt-3 text-center">
         <p class="small text-white-50 mb-0">Salud Linux &copy; @DateTime.Now.Year</p>
     </div>
 </aside>
 
 <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMobile" aria-labelledby="sidebarMobileLabel">
-  <div class="offcanvas-header border-bottom border-secondary">
-    <h5 class="offcanvas-title h4 fw-bold text-info" id="sidebarMobileLabel"><i class="fas fa-heartbeat me-2"></i> System EPS</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-     <nav class="nav flex-column flex-grow-1">
-        <h6 class="text-uppercase small text-white-50 mb-2 px-2">Módulos</h6>
-        <a href="@Url.Action("Dashboard", "Home")" class="nav-link active rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
-            <i class="fas fa-desktop text-success"></i><span class="ms-3">Panel de Control</span>
-        </a>
-        <a href="@Url.Action("ManageAffiliate", "Home")" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
-            <i class="fas fa-user-plus text-warning"></i><span class="ms-3">Gestión de Afiliados</span>
-        </a>
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title h4 fw-bold text-info" id="sidebarMobileLabel"><i class="fas fa-heartbeat me-2"></i> System EPS</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <nav class="nav flex-column flex-grow-1">
+            <h6 class="text-uppercase small text-white-50 mb-2 px-2">Módulos</h6>
+            <a href="@Url.Action("Dashboard", "Home")" class="nav-link active rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
+                <i class="fas fa-desktop text-success"></i><span class="ms-3">Panel de Control</span>
+            </a>
+            <a href="@Url.Action("ManageAffiliate", "Home")" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
+                <i class="fas fa-user-plus text-warning"></i><span class="ms-3">Gestión de Afiliados</span>
+            </a>
 
-        <h6 class="text-uppercase small text-white-50 mt-4 mb-2 px-2">Visualización</h6>
-        <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
-            <i class="fas fa-tablet-alt text-info"></i><span class="ms-3">Kiosko de Turnos</span>
-        </a>
-        <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
-            <i class="fas fa-tv text-danger"></i><span class="ms-3">Pantalla de Llamadas</span>
-        </a>
-    </nav>
-  </div>
+            <h6 class="text-uppercase small text-white-50 mt-4 mb-2 px-2">Visualización</h6>
+            <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
+                <i class="fas fa-tablet-alt text-info"></i><span class="ms-3">Kiosko de Turnos</span>
+            </a>
+            <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="nav-link rounded-3 mb-1 px-3 py-3 d-flex align-items-center">
+                <i class="fas fa-tv text-danger"></i><span class="ms-3">Pantalla de Llamadas</span>
+            </a>
+        </nav>
+    </div>
 </div>
 
 <main class="content-wrapper p-4">
     <div class="container-fluid">
-        
+
         <header class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div class="d-flex align-items-center">
                 <button class="btn btn-outline-secondary d-lg-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile">
@@ -87,9 +86,9 @@
                 <i class="fas fa-redo me-2"></i> Reiniciar Sistema
             </button>
         </header>
-        
+
         <div class="row g-4">
-            
+
             <div class="col-lg-4">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-dark text-white fw-bold h5 d-flex align-items-center">
@@ -101,10 +100,10 @@
                                 <i class="fas fa-cash-register me-2"></i> Puesto de Atención:
                             </label>
                             <select id="selectServiceDesk" class="form-select form-select-lg">
-                                 @if (ViewBag.ServiceDesks != null) {
-                                    @foreach (var desk in ViewBag.ServiceDesks) {
-                                        <option value="@desk.Id">@desk.DeskNumber</option>
-                                    }
+                                @if (ViewBag.ServiceDesks != null) {
+                                @foreach (var desk in ViewBag.ServiceDesks) {
+                                <option value="@desk.Id">@desk.DeskNumber</option>
+                                }
                                 }
                             </select>
                         </div>
@@ -112,7 +111,7 @@
                             <i class="fas fa-phone-volume me-2"></i> Llamar Siguiente
                         </button>
                         <div id="cardAtendiendo" class="card card-atendiendo text-center shadow-lg text-white">
-                             <h5 class="h6 fw-bold text-white-50 mb-2">
+                            <h5 class="h6 fw-bold text-white-50 mb-2">
                                 <i class="fas fa-user-nurse me-2"></i> ATENDIENDO AHORA
                             </h5>
                             <div id="turnoActual" class="font-oswald fw-bolder">- - -</div>
@@ -123,7 +122,7 @@
             </div>
 
             <div class="col-lg-4">
-                 <h3 class="h4 fw-bolder text-dark mb-3 d-flex align-items-center">
+                <h3 class="h4 fw-bolder text-dark mb-3 d-flex align-items-center">
                     <i class="fas fa-users me-3 text-primary"></i> Fila de Espera
                 </h3>
                 <div class="card shadow-sm border-0">
@@ -140,17 +139,17 @@
                     <i class="fas fa-history me-3 text-indigo"></i> Historial de Hoy
                 </h3>
                 <div class="card shadow-sm border-0">
-                     <div class="table-responsive custom-scrollbar" style="max-height: calc(100vh - 180px);">
+                    <div class="table-responsive custom-scrollbar" style="max-height: calc(100vh - 180px);">
                         <table class="table table-hover table-sm mb-0">
                             <thead class="table-light" style="position: sticky; top: 0;">
-                                <tr>
-                                    <th class="px-3 py-2 text-uppercase small">Turno</th>
-                                    <th class="px-3 py-2 text-uppercase small">Hora</th>
-                                    <th class="px-3 py-2 text-uppercase small">Afiliado</th>
-                                </tr>
+                            <tr>
+                                <th class="px-3 py-2 text-uppercase small">Turno</th>
+                                <th class="px-3 py-2 text-uppercase small">Hora</th>
+                                <th class="px-3 py-2 text-uppercase small">Afiliado</th>
+                            </tr>
                             </thead>
                             <tbody id="historialHoy">
-                                <tr><td colspan="3" class="px-3 py-4 text-center text-muted">Cargando...</td></tr>
+                            <tr><td colspan="3" class="px-3 py-4 text-center text-muted">Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -162,216 +161,445 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <script>
-    // --- LÓGICA DEL BOTÓN DE REINICIO ---
-    document.getElementById('btnResetSystem')?.addEventListener('click', async () => {
-        if (!confirm('¿Está seguro de reiniciar el sistema? Esto eliminará todos los turnos del día.')) {
-            return;
+    (function() {
+        'use strict';
+
+        // ============================================
+        // 🎨 FUNCIONES DE NOTIFICACIÓN BONITAS
+        // ============================================
+
+        function showToast(message, type = 'success') {
+            const backgrounds = {
+                success: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                error: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                warning: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                info: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
+            };
+
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top", // ✅ Arriba
+                position: "center", // ✅ Centro
+                stopOnFocus: true,
+                offset: {
+                    y: 80 // ✅ Espaciado desde arriba
+                },
+                style: {
+                    background: backgrounds[type] || backgrounds.success,
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    padding: "16px 24px",
+                    minWidth: "300px",
+                    textAlign: "center"
+                }
+            }).showToast();
         }
-        
-        const btn = document.getElementById('btnResetSystem');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Reiniciando...';
-        
-        try {
-            const response = await fetch('/api/Tickets/reset', { method: 'POST' });
-            if (response.ok) {
-                alert('Sistema reiniciado correctamente');
-                location.reload();
-            } else {
-                alert('Error al reiniciar el sistema');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error de conexión');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-redo mr-2"></i> Reiniciar Sistema';
-        }
-    });
 
-    // --- JS DEL DASHBOARD (dashboard.js) ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- Referencias a los Elementos del DOM ---
-        const selectServiceDesk = document.getElementById('selectServiceDesk');
-        const btnLlamarSiguiente = document.getElementById('btnLlamarSiguiente');
-        const turnoActualDiv = document.getElementById('turnoActual');
-        const afiliadoActualDiv = document.getElementById('afiliadoActual');
-        const cardAtendiendo = document.getElementById('cardAtendiendo');
-        const listaEsperaUl = document.getElementById('listaEspera');
-        const historialHoyTbody = document.getElementById('historialHoy');
-
-        // --- Conexión a SignalR ---
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/queueHub")
-            .withAutomaticReconnect()
-            .build();
-
-        // --- Funciones para Renderizar la UI ---
-
-        function renderWaitingList(tickets) {
-            listaEsperaUl.innerHTML = '';
-            if (!tickets || tickets.length === 0) {
-                listaEsperaUl.innerHTML = '<li class="list-group-item text-muted text-center p-4">No hay turnos en espera.</li>';
-                return;
-            }
-            tickets.forEach(ticket => {
-                const li = document.createElement('li');
-                li.className = 'list-item-animation list-group-item d-flex justify-content-between align-items-center';
-                li.innerHTML = `
-                    <div>
-                        <span class="font-oswald h5 fw-medium text-dark">${ticket.ticketCode}</span>
-                        <span class="d-block small text-muted">${ticket.affiliate?.fullName ?? 'Visitante'}</span>
-                    </div>
-                    <span class="badge bg-light text-dark small">${new Date(ticket.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
-                `;
-                listaEsperaUl.appendChild(li);
+        function showSuccess(title, message) {
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message,
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                position: 'center', // ✅ Centro
+                background: '#f0fdf4',
+                iconColor: '#22c55e'
             });
         }
 
-        function renderHistoryTable(tickets) {
-            historialHoyTbody.innerHTML = '';
-            if (!tickets || tickets.length === 0) {
-                historialHoyTbody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-muted">No hay turnos atendidos hoy.</td></tr>';
-                return;
-            }
-            tickets.forEach(ticket => {
-                const tr = document.createElement('tr');
-                tr.className = 'list-item-animation';
-
-                const horaAtencion = ticket.servedAt
-                    ? new Date(ticket.servedAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                    : 'N/A';
-
-                tr.innerHTML = `
-                    <td class="px-3 py-2 align-middle">
-                        <span class="font-oswald fw-medium text-dark">${ticket.ticketCode}</span>
-                    </td>
-                    <td class="px-3 py-2 text-muted small align-middle">${horaAtencion}</td>
-                    <td class="px-3 py-2 text-dark small align-middle">${ticket.affiliate?.fullName ?? 'Visitante'}</td>
-                `;
-                historialHoyTbody.appendChild(tr);
+        function showError(title, message) {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#ef4444',
+                position: 'center', // ✅ Centro
+                background: '#fef2f2',
+                iconColor: '#ef4444'
             });
         }
 
-        function updateAtendiendoCard(ticket) {
-            if (ticket) {
-                turnoActualDiv.textContent = ticket.ticketCode;
-                afiliadoActualDiv.textContent = ticket.affiliate?.fullName ?? 'Visitante';
-                if (cardAtendiendo) {
-                    cardAtendiendo.classList.add('active');
-                    setTimeout(() => { cardAtendiendo.classList.remove('active'); }, 2000);
-                }
-            } else {
-                turnoActualDiv.textContent = '- - -';
-                afiliadoActualDiv.textContent = 'Esperando turno...';
-                if (cardAtendiendo) {
-                    cardAtendiendo.classList.remove('active');
-                }
-            }
+        function showWarning(title, message) {
+            Swal.fire({
+                icon: 'warning',
+                title: title,
+                text: message,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#f59e0b',
+                position: 'center', // ✅ Centro
+                background: '#fffbeb',
+                iconColor: '#f59e0b'
+            });
         }
 
-        async function loadInitialData() {
+        function showInfo(title, message) {
+            Swal.fire({
+                icon: 'info',
+                title: title,
+                text: message,
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                position: 'center', // ✅ Centro
+                background: '#eff6ff',
+                iconColor: '#3b82f6'
+            });
+        }
+
+        // ============================================
+        // 🔔 FUNCIÓN PARA GENERAR SONIDO DE CAMPANA
+        // ============================================
+
+        function reproducirCampana() {
             try {
-                const [waitingResponse, historyResponse] = await Promise.all([
-                    fetch('/api/Tickets'),
-                    fetch('/api/Tickets/history/today')
-                ]);
-                if (!waitingResponse.ok || !historyResponse.ok) throw new Error('Error al cargar los datos');
-                
-                const waitingTickets = await waitingResponse.json();
-                const historyTickets = await historyResponse.json();
+                var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                var oscillator = audioContext.createOscillator();
+                var gainNode = audioContext.createGain();
 
-                renderWaitingList(waitingTickets);
-                renderHistoryTable(historyTickets);
-                console.log('✅ Dashboard: Datos iniciales cargados');
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
             } catch (error) {
-                console.error("❌ Error al cargar los datos iniciales:", error);
-                listaEsperaUl.innerHTML = '<li class="list-group-item text-danger text-center p-4">Error al cargar la fila de espera.</li>';
-                historialHoyTbody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-danger">Error al cargar el historial.</td></tr>';
+                console.error('Error al reproducir campana:', error);
             }
         }
 
-        async function reloadHistory() {
+        // ============================================
+        // 🔊 FUNCIÓN DE VOZ
+        // ============================================
+
+        function anunciarTurno(ticketCode, deskNumber) {
             try {
-                const response = await fetch('/api/Tickets/history/today');
-                if (!response.ok) throw new Error('Error al cargar historial');
-                const historyTickets = await response.json();
-                renderHistoryTable(historyTickets);
-                console.log('🔄 Dashboard: Historial actualizado');
+                speechSynthesis.cancel();
+                reproducirCampana();
+
+                var mensaje = 'Turno ' + ticketCode + ', Puesto ' + deskNumber;
+                var utterance = new SpeechSynthesisUtterance(mensaje);
+
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                var voices = speechSynthesis.getVoices();
+                var spanishVoice = voices.find(function(v) {
+                    return v.lang.startsWith('es');
+                });
+
+                if (spanishVoice) {
+                    utterance.voice = spanishVoice;
+                }
+
+                setTimeout(function() {
+                    speechSynthesis.speak(utterance);
+                }, 800);
+
             } catch (error) {
-                console.error("❌ Error al recargar el historial:", error);
+                console.error('Error al anunciar:', error);
             }
         }
 
-        if (btnLlamarSiguiente) {
-            btnLlamarSiguiente.addEventListener('click', async () => {
-                const serviceDeskId = selectServiceDesk.value;
-                if (!serviceDeskId) {
-                    alert('Por favor, seleccione un puesto de atención.');
-                    return;
-                }
-                btnLlamarSiguiente.disabled = true;
-                btnLlamarSiguiente.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Llamando...';
+        // Cargar voces
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = function() {
+                speechSynthesis.getVoices();
+            };
+        }
+
+        // ============================================
+        // 🔄 BOTÓN DE REINICIO DEL SISTEMA
+        // ============================================
+
+        var btnReset = document.getElementById('btnResetSystem');
+        if (btnReset) {
+            btnReset.addEventListener('click', async function() {
+                const result = await Swal.fire({
+                    title: '⚠️ ¿Reiniciar Sistema?',
+                    text: 'Esto eliminará todos los turnos del día. Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Sí, reiniciar',
+                    cancelButtonText: 'Cancelar',
+                    position: 'center',
+                    background: '#fefce8',
+                    iconColor: '#f59e0b'
+                });
+
+                if (!result.isConfirmed) return;
+
+                btnReset.disabled = true;
+                btnReset.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Reiniciando...';
 
                 try {
-                    const response = await fetch(`/api/Tickets/next/${serviceDeskId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                    if (response.status === 404) {
-                        alert('No hay más turnos en la fila de espera.');
-                        updateAtendiendoCard(null);
-                    } else if (!response.ok) {
-                        throw new Error('Error en el servidor al llamar al turno.');
+                    const response = await fetch('/api/Tickets/reset', { method: 'POST' });
+                    if (response.ok) {
+                        showSuccess('¡Sistema Reiniciado!', 'Todos los turnos han sido eliminados');
+                        location.reload(); // ✅ Recargar inmediatamente
                     } else {
-                        const calledTicket = await response.json();
-                        console.log('📞 Dashboard: Turno llamado localmente', calledTicket);
-                        updateAtendiendoCard(calledTicket);
+                        showError('Error', 'No se pudo reiniciar el sistema');
                     }
                 } catch (error) {
-                    console.error("❌ Error al llamar al siguiente turno:", error);
-                    alert('Ocurrió un error al intentar llamar al turno.');
+                    showError('Error de Conexión', 'No se pudo conectar con el servidor');
                 } finally {
-                    btnLlamarSiguiente.disabled = false;
-                    btnLlamarSiguiente.innerHTML = '<i class="fas fa-phone-volume me-2"></i> Llamar Siguiente';
+                    btnReset.disabled = false;
+                    btnReset.innerHTML = '<i class="fas fa-redo me-2"></i> Reiniciar Sistema';
                 }
             });
         }
 
-        connection.on("ReceiveNewCall", (ticket) => {
-            console.log('📢 Dashboard: Recibido nuevo llamado por SignalR', ticket);
-            updateAtendiendoCard(ticket);
-            setTimeout(() => reloadHistory(), 500);
-        });
+        // ============================================
+        // 📋 LÓGICA PRINCIPAL DEL DASHBOARD
+        // ============================================
 
-        connection.on("UpdateWaitingList", (waitingTickets) => {
-            console.log('📋 Dashboard: Lista de espera actualizada', waitingTickets);
-            renderWaitingList(waitingTickets);
-        });
-        
-        connection.on("SystemReset", () => {
-            console.log('🔄 Dashboard: Sistema reiniciado');
-            renderWaitingList([]);
-            renderHistoryTable([]);
-            updateAtendiendoCard(null);
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('🚀 Iniciando Sistema...', 'info');
 
-        async function start() {
-            try {
-                await connection.start();
-                console.log("✅ SignalR conectado (Dashboard)");
-                await loadInitialData();
-            } catch (err) {
-                console.error("❌ Error de conexión SignalR:", err);
-                setTimeout(start, 5000);
+            var selectServiceDesk = document.getElementById('selectServiceDesk');
+            var btnLlamarSiguiente = document.getElementById('btnLlamarSiguiente');
+            var turnoActualDiv = document.getElementById('turnoActual');
+            var afiliadoActualDiv = document.getElementById('afiliadoActual');
+            var cardAtendiendo = document.getElementById('cardAtendiendo');
+            var listaEsperaUl = document.getElementById('listaEspera');
+            var historialHoyTbody = document.getElementById('historialHoy');
+
+            // SignalR Connection
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl("/queueHub")
+                .withAutomaticReconnect()
+                .build();
+
+            // ============================================
+            // 🎨 FUNCIONES DE RENDERIZADO
+            // ============================================
+
+            function renderWaitingList(tickets) {
+                listaEsperaUl.innerHTML = '';
+                if (!tickets || tickets.length === 0) {
+                    listaEsperaUl.innerHTML = '<li class="list-group-item text-muted text-center p-4">No hay turnos en espera.</li>';
+                    return;
+                }
+                tickets.forEach(function(ticket) {
+                    var li = document.createElement('li');
+                    li.className = 'list-item-animation list-group-item d-flex justify-between align-items-center';
+                    var affiliateName = ticket.affiliate && ticket.affiliate.fullName ? ticket.affiliate.fullName : 'Visitante';
+                    var createdTime = new Date(ticket.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                    li.innerHTML = '<div><span class="font-oswald h5 fw-medium text-dark">' + ticket.ticketCode + '</span><span class="d-block small text-muted">' + affiliateName + '</span></div><span class="badge bg-light text-dark small">' + createdTime + '</span>';
+                    listaEsperaUl.appendChild(li);
+                });
             }
-        }
-        connection.onreconnected(() => {
-            console.log("🔄 SignalR reconectado");
-            loadInitialData();
+
+            function renderHistoryTable(tickets) {
+                historialHoyTbody.innerHTML = '';
+                if (!tickets || tickets.length === 0) {
+                    historialHoyTbody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-muted">No hay turnos atendidos hoy.</td></tr>';
+                    return;
+                }
+                tickets.forEach(function(ticket) {
+                    var tr = document.createElement('tr');
+                    tr.className = 'list-item-animation';
+                    var horaAtencion = ticket.servedAt ? new Date(ticket.servedAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'N/A';
+                    var affiliateName = ticket.affiliate && ticket.affiliate.fullName ? ticket.affiliate.fullName : 'Visitante';
+                    tr.innerHTML = '<td class="px-3 py-2 align-middle"><span class="font-oswald fw-medium text-dark">' + ticket.ticketCode + '</span></td><td class="px-3 py-2 text-muted small align-middle">' + horaAtencion + '</td><td class="px-3 py-2 text-dark small align-middle">' + affiliateName + '</td>';
+                    historialHoyTbody.appendChild(tr);
+                });
+            }
+
+            function updateAtendiendoCard(ticket) {
+                if (ticket) {
+                    turnoActualDiv.textContent = ticket.ticketCode;
+                    var affiliateName = ticket.affiliate && ticket.affiliate.fullName ? ticket.affiliate.fullName : 'Visitante';
+                    afiliadoActualDiv.textContent = affiliateName;
+                    if (cardAtendiendo) {
+                        cardAtendiendo.classList.add('active');
+                        setTimeout(function() {
+                            cardAtendiendo.classList.remove('active');
+                        }, 2000);
+                    }
+                } else {
+                    turnoActualDiv.textContent = '- - -';
+                    afiliadoActualDiv.textContent = 'Esperando turno...';
+                    if (cardAtendiendo) {
+                        cardAtendiendo.classList.remove('active');
+                    }
+                }
+            }
+
+            // ============================================
+            // 📡 CARGA DE DATOS
+            // ============================================
+
+            async function loadInitialData() {
+                try {
+                    var responses = await Promise.all([
+                        fetch('/api/Tickets'),
+                        fetch('/api/Tickets/history/today')
+                    ]);
+
+                    if (!responses[0].ok || !responses[1].ok) {
+                        throw new Error('Error al cargar los datos');
+                    }
+
+                    var waitingTickets = await responses[0].json();
+                    var historyTickets = await responses[1].json();
+
+                    renderWaitingList(waitingTickets);
+                    renderHistoryTable(historyTickets);
+                    showToast('✨ Datos cargados correctamente', 'success');
+                } catch (error) {
+                    showError('Error de Carga', 'No se pudieron cargar los datos iniciales');
+                    listaEsperaUl.innerHTML = '<li class="list-group-item text-danger text-center p-4">Error al cargar la fila de espera.</li>';
+                    historialHoyTbody.innerHTML = '<tr><td colspan="3" class="px-3 py-4 text-center text-danger">Error al cargar el historial.</td></tr>';
+                }
+            }
+
+            async function reloadHistory() {
+                try {
+                    var response = await fetch('/api/Tickets/history/today');
+                    if (!response.ok) throw new Error('Error al cargar historial');
+                    var historyTickets = await response.json();
+                    renderHistoryTable(historyTickets);
+                } catch (error) {
+                    console.error('Error al recargar historial:', error);
+                }
+            }
+
+            // ============================================
+            // 📞 BOTÓN LLAMAR SIGUIENTE
+            // ============================================
+
+            if (btnLlamarSiguiente) {
+                btnLlamarSiguiente.addEventListener('click', async function() {
+                    var serviceDeskId = selectServiceDesk.value;
+                    if (!serviceDeskId) {
+                        showWarning('Atención', 'Por favor, seleccione un puesto de atención');
+                        return;
+                    }
+
+                    btnLlamarSiguiente.disabled = true;
+                    btnLlamarSiguiente.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Llamando...';
+
+                    try {
+                        var response = await fetch('/api/Tickets/next/' + serviceDeskId, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        if (response.status === 404) {
+                            showInfo('Sin Turnos', 'No hay más turnos en la fila de espera');
+                            updateAtendiendoCard(null);
+                        } else if (!response.ok) {
+                            throw new Error('Error en el servidor');
+                        } else {
+                            var calledTicket = await response.json();
+                            updateAtendiendoCard(calledTicket);
+
+                            var affiliateName = calledTicket.affiliate?.fullName || 'Visitante';
+                            showSuccess('¡Turno Llamado!', calledTicket.ticketCode + ' - ' + affiliateName);
+
+                            // 🔊 ANUNCIAR TURNO
+                            var deskNumber = (calledTicket.serviceDesk && calledTicket.serviceDesk.deskNumber)
+                                ? calledTicket.serviceDesk.deskNumber
+                                : selectServiceDesk.options[selectServiceDesk.selectedIndex].text;
+
+                            setTimeout(function() {
+                                anunciarTurno(calledTicket.ticketCode, deskNumber);
+                            }, 300);
+                        }
+                    } catch (error) {
+                        showError('Error', 'Ocurrió un error al llamar al turno');
+                    } finally {
+                        btnLlamarSiguiente.disabled = false;
+                        btnLlamarSiguiente.innerHTML = '<i class="fas fa-phone-volume me-2"></i> Llamar Siguiente';
+                    }
+                });
+            }
+
+            // ============================================
+            // 📡 EVENTOS DE SIGNALR
+            // ============================================
+
+            connection.on("ReceiveNewCall", function(ticket) {
+                updateAtendiendoCard(ticket);
+                var affiliateName = ticket.affiliate?.fullName || 'Visitante';
+                showToast('📢 ' + ticket.ticketCode + ' - ' + affiliateName, 'success');
+                setTimeout(function() { reloadHistory(); }, 500);
+            });
+
+            connection.on("UpdateWaitingList", function(waitingTickets) {
+                renderWaitingList(waitingTickets);
+                showToast('📝 Lista de espera actualizada', 'info');
+            });
+
+            connection.on("SystemReset", function() {
+                renderWaitingList([]);
+                renderHistoryTable([]);
+                updateAtendiendoCard(null);
+
+                Swal.fire({
+                    icon: 'info',
+                    title: '🔄 Sistema Reiniciado',
+                    text: 'El sistema ha sido reiniciado. Todas las listas se han limpiado.',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#3b82f6',
+                    position: 'center',
+                    background: '#eff6ff',
+                    iconColor: '#3b82f6'
+                });
+            });
+
+            // ============================================
+            // 🔌 INICIAR CONEXIÓN
+            // ============================================
+
+            async function start() {
+                try {
+                    await connection.start();
+                    showToast('🔌 Conectado al servidor', 'success');
+                    await loadInitialData();
+                } catch (err) {
+                    showError('Error de Conexión', 'No se pudo conectar. Reintentando...');
+                    setTimeout(start, 5000);
+                }
+            }
+
+            connection.onreconnected(function() {
+                showToast('✅ Conexión restablecida', 'success');
+                loadInitialData();
+            });
+
+            connection.onreconnecting(function() {
+                showToast('⚠️ Reconectando...', 'warning');
+            });
+
+            connection.onclose(function() {
+                showError('Desconectado', 'Se perdió la conexión con el servidor');
+            });
+
+            start();
         });
-        start();
-    });
+    })();
 </script>
 
 </body>

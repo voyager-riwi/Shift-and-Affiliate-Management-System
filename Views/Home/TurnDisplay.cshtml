@@ -4,43 +4,262 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Turnero Digital - EPS VOYAGER</title>
-    <link rel="stylesheet" href="~/css/TurnDisplay.css" asp-append-version="true" />
-    @{ Layout = null; }
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
-    <link />
-</head>
-<body class="flex flex-col h-screen">
 
-<!-- HEADER -->
-<header class="bg-black bg-opacity-30 p-6 flex justify-between items-center shadow-2xl">
-    <h1 class="text-5xl font-bold tracking-wider">🏥 EPS VOYAGER</h1>
-    <div id="clock" class="text-5xl font-bold"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-black-rgba: rgba(0,0,0,0.35);
+            --bg-black-rgba-2: rgba(0,0,0,0.5);
+            --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --blue-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        q@keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sr-only {
+            position: absolute !important;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0);
+            white-space: nowrap; border: 0;
+        }
+
+        /* Tipografía responsive y elegante */
+        #mainTurnoCode {
+            font-family: "Oswald", system-ui, sans-serif;
+            font-weight: 700;
+            font-size: clamp(6rem, 17vw, 20rem);
+            line-height: 0.9;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
+        }
+
+        #mainDeskNumber {
+            font-family: "Inter", "Oswald", system-ui, sans-serif;
+            font-weight: 800;
+            font-size: clamp(6rem, 40vw, 10rem);
+            line-height: 1.1;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(79, 172, 254, 0.3);
+        }
+
+        .calling-effect {
+            transform-origin: center;
+            animation: pulse-zoom 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @@keyframes pulse-zoom {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            }
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 30px 80px rgba(102, 126, 234, 0.4);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            }
+        }
+
+        .backdrop-blur-md {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .backdrop-blur-sm {
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        /* Indicador de conexión con pulso */
+        #connStatusDot {
+            width: 16px;
+            height: 16px;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-right: 0.75rem;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+
+        .status-connected {
+            background: #16a34a;
+            box-shadow: 0 0 30px rgba(22, 163, 74, 0.8);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .status-disconnected {
+            background: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .status-reconnecting {
+            background: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            animation: pulse-dot 1s ease-in-out infinite;
+        }
+
+        @@keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* Animación de entrada suave */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Efectos de hover mejorados */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+
+        /* Botón con efecto glassmorphism */
+        .glass-button {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .glass-button:active {
+            transform: translateY(0);
+        }
+
+        /* Tarjeta principal mejorada */
+        #activeCallCard {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #activeCallCard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @@keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Tarjetas de historial mejoradas */
+        .history-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Reloj con estilo */
+        #clock {
+            font-family: 'Oswald', monospace;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+<header class="bg-black bg-opacity-30 backdrop-blur-md p-6 flex justify-between items-center shadow-2xl border-b border-white border-opacity-10">
+    <div class="flex items-center gap-4">
+        <span id="connStatusDot" class="status-disconnected" aria-hidden="true"></span>
+        <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold tracking-wider text-white drop-shadow-lg">
+            🏥 EPS VOYAGER
+        </h1>
+    </div>
+    <div class="flex items-center gap-6">
+        <div id="clock" class="text-xl sm:text-3xl font-bold text-white" aria-hidden="true"></div>
+        <button id="muteToggle" class="glass-button text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+            <span id="muteIcon">🔊</span>
+            <span id="muteText">Silenciar</span>
+        </button>
+    </div>
 </header>
 
-<!-- CONTENIDO PRINCIPAL -->
-<main class="flex-grow flex items-center justify-center p-8">
+<main class="flex-grow flex items-center justify-center p-6 overflow-hidden">
+    <div id="activeCallCard" class="text-gray-900 p-8 md:p-16 text-center calling-effect hover-lift" role="region" aria-label="Turno actual" style="max-width: 900px; width: 100%;">
+        <p class="text-2xl md:text-4xl font-bold text-gray-500 mb-6 tracking-wide uppercase">Turno</p>
+        <div id="mainTurnoCode">--</div>
 
-    <!-- TARJETA PRINCIPAL DEL TURNO -->
-    <div id="activeCallCard" class="bg-white text-gray-900 rounded-3xl shadow-2xl p-16 text-center calling-effect">
-        <p class="text-4xl font-bold text-gray-600 mb-4">TURNO</p>
-        <div id="mainTurnoCode" class="text-[18rem] font-bold leading-none text-purple-700">--</div>
-
-        <div class="mt-12 pt-8 border-t-4 border-gray-300">
-            <p class="text-4xl font-bold text-gray-600 mb-4">PUESTO</p>
-            <div id="mainDeskNumber" class="text-[12rem] font-bold leading-none text-blue-600">--</div>
+        <div class="mt-8 md:mt-12 pt-8 md:pt-10 border-t-4 border-gray-200">
+            <p class="text-2xl md:text-4xl font-bold text-gray-500 mb-6 tracking-wide uppercase">Puesto</p>
+            <div id="mainDeskNumber">--</div>
         </div>
     </div>
-
 </main>
 
-<!-- FOOTER CON ÚLTIMOS LLAMADOS -->
-<footer class="bg-black bg-opacity-40 p-6">
-    <h3 class="text-3xl font-bold mb-4 text-center">📋 ÚLTIMOS LLAMADOS</h3>
-    <div id="historyList" class="flex justify-center gap-6 flex-wrap">
-        <!-- Se llenarán por JavaScript -->
+<footer class="bg-black bg-opacity-40 backdrop-blur-md p-6 border-t border-white border-opacity-10">
+    <h3 class="text-xl md:text-3xl font-bold mb-6 text-center text-white tracking-wide">
+        📋 ÚLTIMOS LLAMADOS
+    </h3>
+    <div id="historyList" class="flex justify-center gap-4 flex-wrap max-w-7xl mx-auto" aria-live="polite" aria-atomic="true">
+        <!-- Historial renderizado por JavaScript -->
     </div>
 </footer>
+
+<!-- Region accesible para lectores de pantalla -->
+<div id="sr-announcer" aria-live="assertive" class="sr-only" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
@@ -50,102 +269,392 @@
         const mainTurnoCode = document.getElementById('mainTurnoCode');
         const mainDeskNumber = document.getElementById('mainDeskNumber');
         const historyList = document.getElementById('historyList');
+        const srAnnouncer = document.getElementById('sr-announcer');
+        const connStatusDot = document.getElementById('connStatusDot');
+        const muteToggle = document.getElementById('muteToggle');
+        const muteIcon = document.getElementById('muteIcon');
+        const muteText = document.getElementById('muteText');
+
+        // Estado
+        let audioContext = null;
+        let voicesReady = false;
+        let spanishVoice = null;
+        let speakingLock = false;
+        let speechTimeout = null;
+
+        // 🆕 MEJORA: Persistir estado de silencio
+        let muted = localStorage.getItem('turnDisplayMuted') === 'true';
+        updateMuteButton();
 
         // Reloj
-        setInterval(() => {
+        function updateClock() {
             const now = new Date();
-            clockElement.textContent = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-        }, 1000);
+            clockElement.textContent = now.toLocaleTimeString('es-CO', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
 
-        // SignalR
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/queueHub")
-            .withAutomaticReconnect()
-            .build();
+        // 🆕 MEJORA: Actualizar UI del botón de silencio
+        function updateMuteButton() {
+            if (muted) {
+                muteIcon.textContent = '🔇';
+                muteText.textContent = 'Activar';
+            } else {
+                muteIcon.textContent = '🔊';
+                muteText.textContent = 'Silenciar';
+            }
+        }
 
-        // Renderizar historial simplificado
-        const renderHistory = (tickets) => {
-            if (!tickets || tickets.length === 0) {
-                historyList.innerHTML = '<div class="text-white text-xl">No hay historial</div>';
+        // Botón silenciar con persistencia
+        muteToggle.addEventListener('click', () => {
+            muted = !muted;
+            localStorage.setItem('turnDisplayMuted', muted);
+            updateMuteButton();
+
+            if (muted) {
+                speechSynthesis.cancel();
+                if (speechTimeout) clearTimeout(speechTimeout);
+                if (audioContext && audioContext.state === 'running') {
+                    audioContext.suspend().catch(() => {});
+                }
+                console.log('🔇 Modo silenciado activado');
+            } else {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(() => {});
+                }
+                console.log('🔊 Modo sonido activado');
+            }
+        });
+
+        // AudioContext reutilizable con desbloqueo
+        function ensureAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const resumeIfSuspended = () => {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume().catch(() => {});
+                    }
+                    document.removeEventListener('click', resumeIfSuspended);
+                    document.removeEventListener('keydown', resumeIfSuspended);
+                };
+                document.addEventListener('click', resumeIfSuspended, { once: true });
+                document.addEventListener('keydown', resumeIfSuspended, { once: true });
+            }
+            return audioContext;
+        }
+
+        // Campana mejorada con dos tonos
+        function reproducirCampana() {
+            if (muted) return Promise.resolve();
+            try {
+                const ac = ensureAudioContext();
+
+                // Primer tono (más alto)
+                const osc1 = ac.createOscillator();
+                const gain1 = ac.createGain();
+                osc1.connect(gain1);
+                gain1.connect(ac.destination);
+                osc1.frequency.value = 880; // La5
+                osc1.type = 'sine';
+                gain1.gain.setValueAtTime(0.0001, ac.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + 0.02);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.3);
+                osc1.start(ac.currentTime);
+                osc1.stop(ac.currentTime + 0.3);
+
+                // Segundo tono (más bajo) con delay
+                const osc2 = ac.createOscillator();
+                const gain2 = ac.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ac.destination);
+                osc2.frequency.value = 660; // Mi5
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0.0001, ac.currentTime + 0.15);
+                gain2.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + 0.17);
+                gain2.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.5);
+                osc2.start(ac.currentTime + 0.15);
+                osc2.stop(ac.currentTime + 0.5);
+
+                return new Promise((resolve) => {
+                    osc2.onended = () => resolve();
+                });
+            } catch (error) {
+                console.error('❌ Error al reproducir campana:', error);
+                return Promise.resolve();
+            }
+        }
+
+        // Cargar voces
+        function loadVoices() {
+            const vs = speechSynthesis.getVoices();
+            if (vs && vs.length > 0) {
+                spanishVoice = vs.find(v => v.lang && v.lang.toLowerCase().startsWith('es')) || null;
+                voicesReady = true;
+                console.log('🎤 Voces cargadas:', vs.length, '| Voz español:', spanishVoice?.name || 'Predeterminada');
+            }
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+
+        // 🆕 MEJORA: Anunciador con timeout y vibración
+        async function anunciarTurno(ticketCode, deskNumber) {
+            const mensaje = `Turno ${ticketCode}, puesto ${deskNumber}`;
+            announceForSR(mensaje);
+
+            if (muted) {
+                console.log('🔇 Silenciado, no se reproducirá audio');
                 return;
             }
 
-            historyList.innerHTML = tickets.slice(0, 5).map(t => `
-                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4 text-center fade-in">
-                    <div class="text-4xl font-bold">${t.ticketCode}</div>
-                    <div class="text-lg">${t.serviceDesk?.deskNumber ?? '--'}</div>
-                </div>
-            `).join('');
-        };
+            if (speakingLock) {
+                console.log('⏳ Anuncio en progreso, se ignora el nuevo');
+                return;
+            }
+            speakingLock = true;
 
-        // Cargar datos iniciales
-        async function loadInitialData() {
             try {
-                const response = await fetch('/api/Tickets/history/today');
-                if (!response.ok) throw new Error('Error al cargar historial');
+                speechSynthesis.cancel();
+                if (speechTimeout) clearTimeout(speechTimeout);
+            } catch (e) {}
 
-                const tickets = await response.json();
+            try {
+                await reproducirCampana();
 
-                if (tickets.length > 0) {
-                    const ultimo = tickets[0];
-                    mainTurnoCode.textContent = ultimo.ticketCode;
-                    mainDeskNumber.textContent = ultimo.serviceDesk?.deskNumber ?? '--';
+                // Esperar voces (máx 1s)
+                const startTime = Date.now();
+                while (!voicesReady && (Date.now() - startTime) < 1000) {
+                    await new Promise(r => setTimeout(r, 80));
                 }
 
-                renderHistory(tickets.slice(1));
-            } catch (e) {
-                console.error("Error cargando datos iniciales:", e);
+                const utter = new SpeechSynthesisUtterance(mensaje);
+                utter.lang = 'es-CO';
+                utter.rate = 0.9;
+                utter.pitch = 1.05;
+                utter.volume = 1;
+                if (spanishVoice) utter.voice = spanishVoice;
+
+                // 🆕 MEJORA: Timeout de seguridad (10s)
+                speechTimeout = setTimeout(() => {
+                    if (speakingLock) {
+                        speechSynthesis.cancel();
+                        speakingLock = false;
+                        console.warn('⏱️ Timeout en síntesis de voz');
+                    }
+                }, 10000);
+
+                utter.onstart = () => {
+                    console.log('🗣️ Iniciando síntesis:', mensaje);
+                };
+
+                utter.onend = () => {
+                    speakingLock = false;
+                    if (speechTimeout) clearTimeout(speechTimeout);
+                    console.log('✅ Anuncio finalizado');
+                };
+
+                utter.onerror = (e) => {
+                    speakingLock = false;
+                    if (speechTimeout) clearTimeout(speechTimeout);
+                    console.error('❌ Error en síntesis:', e);
+                };
+
+                speechSynthesis.speak(utter);
+
+                // 🆕 MEJORA: Vibración en móviles
+                if ('vibrate' in navigator && !muted) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+
+            } catch (err) {
+                speakingLock = false;
+                if (speechTimeout) clearTimeout(speechTimeout);
+                console.error('❌ Error en anunciarTurno:', err);
             }
         }
 
-        // Evento: Nuevo llamado
-        connection.on("ReceiveNewCall", (ticket) => {
-            console.log("📢 TV: Nuevo llamado", ticket);
+        function announceForSR(text) {
+            srAnnouncer.textContent = '';
+            setTimeout(() => srAnnouncer.textContent = text, 50);
+        }
 
-            // Mover el actual al historial
-            const prevCode = mainTurnoCode.textContent;
-            if (prevCode !== '--') {
-                const prevItem = document.createElement('div');
-                prevItem.className = 'bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4 text-center fade-in';
-                prevItem.innerHTML = `
-                    <div class="text-4xl font-bold">${prevCode}</div>
-                    <div class="text-lg">${mainDeskNumber.textContent}</div>
-                `;
-                historyList.insertBefore(prevItem, historyList.firstChild);
-
-                // Limitar a 5 items
-                while (historyList.children.length > 5) {
-                    historyList.removeChild(historyList.lastChild);
-                }
+        // Render historial mejorado
+        function renderHistory(tickets) {
+            historyList.innerHTML = '';
+            if (!tickets || tickets.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'text-white text-xl opacity-60';
+                empty.textContent = 'Sin historial disponible';
+                historyList.appendChild(empty);
+                return;
             }
 
-            // Actualizar turno actual
-            mainTurnoCode.textContent = ticket.ticketCode;
-            mainDeskNumber.textContent = ticket.serviceDesk?.deskNumber ?? '--';
+            tickets.slice(0, 5).forEach((t, index) => {
+                const item = document.createElement('div');
+                item.className = 'history-item rounded-2xl p-5 text-center fade-in';
+                item.style.animationDelay = `${index * 0.1}s`;
 
-            // Animación
-            activeCallCard.classList.remove('calling-effect');
-            setTimeout(() => activeCallCard.classList.add('calling-effect'), 10);
+                const code = document.createElement('div');
+                code.className = 'text-2xl md:text-4xl font-bold text-white mb-2';
+                code.textContent = t.ticketCode ?? '--';
+
+                const desk = document.createElement('div');
+                desk.className = 'text-lg text-white opacity-90';
+                desk.textContent = (t.serviceDesk && t.serviceDesk.deskNumber) ? t.serviceDesk.deskNumber : '--';
+
+                item.appendChild(code);
+                item.appendChild(desk);
+                historyList.appendChild(item);
+            });
+        }
+
+        function pushToHistory(code, desk) {
+            const item = document.createElement('div');
+            item.className = 'history-item rounded-2xl p-5 text-center fade-in';
+
+            const c = document.createElement('div');
+            c.className = 'text-2xl md:text-4xl font-bold text-white mb-2';
+            c.textContent = code;
+
+            const d = document.createElement('div');
+            d.className = 'text-lg text-white opacity-90';
+            d.textContent = desk;
+
+            item.appendChild(c);
+            item.appendChild(d);
+            historyList.insertBefore(item, historyList.firstChild);
+
+            while (historyList.children.length > 5) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        // Cargar datos iniciales con retry
+        async function loadInitialData(retries = 0) {
+            try {
+                const res = await fetch('/api/Tickets/history/today', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Error al cargar historial');
+                const tickets = await res.json();
+
+                if (tickets && tickets.length > 0) {
+                    const ultimo = tickets[0];
+                    mainTurnoCode.textContent = ultimo.ticketCode ?? '--';
+                    mainDeskNumber.textContent = (ultimo.serviceDesk && ultimo.serviceDesk.deskNumber) ? ultimo.serviceDesk.deskNumber : '--';
+                    renderHistory(tickets.slice(1));
+                    console.log('📊 Historial cargado:', tickets.length, 'turnos');
+                } else {
+                    mainTurnoCode.textContent = '--';
+                    mainDeskNumber.textContent = '--';
+                    renderHistory([]);
+                    console.log('📊 Sin historial disponible');
+                }
+            } catch (e) {
+                console.error('❌ Error cargando datos:', e);
+                if (retries < 3) {
+                    const delay = 1000 * Math.pow(2, retries);
+                    console.log(`🔄 Reintentando en ${delay}ms...`);
+                    setTimeout(() => loadInitialData(retries + 1), delay);
+                }
+            }
+        }
+
+        // SignalR con reconexión automática
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/queueHub')
+            .withAutomaticReconnect([0, 2000, 10000, 30000])
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        function setConnectionStatus(state) {
+            connStatusDot.classList.remove('status-connected', 'status-disconnected', 'status-reconnecting');
+            if (state === 'connected') {
+                connStatusDot.classList.add('status-connected');
+            } else if (state === 'reconnecting') {
+                connStatusDot.classList.add('status-reconnecting');
+            } else {
+                connStatusDot.classList.add('status-disconnected');
+            }
+        }
+
+        connection.onreconnecting((err) => {
+            console.warn('🔄 Reconectando...', err);
+            setConnectionStatus('reconnecting');
         });
 
-        // Iniciar
-        async function start() {
-            try {
-                await connection.start();
-                console.log("✅ Conectado a SignalR (TV)");
-                await loadInitialData();
-            } catch (err) {
-                console.error("❌ Error de conexión:", err);
-                setTimeout(start, 5000);
-            }
-        }
-
-        connection.onreconnected(() => {
-            console.log("🔄 Reconectado");
+        connection.onreconnected((id) => {
+            console.log('✅ Reconectado, ID:', id);
+            setConnectionStatus('connected');
             loadInitialData();
         });
 
-        start();
+        connection.onclose((err) => {
+            console.error('❌ Conexión cerrada', err);
+            setConnectionStatus('disconnected');
+        });
+
+        // Evento: nuevo llamado
+        connection.on('ReceiveNewCall', (ticket) => {
+            try {
+                console.log('📢 Nuevo llamado recibido:', ticket);
+
+                const prevCode = mainTurnoCode.textContent;
+                const prevDesk = mainDeskNumber.textContent;
+
+                if (prevCode && prevCode !== '--') {
+                    pushToHistory(prevCode, prevDesk);
+                }
+
+                const newTicketCode = ticket && ticket.ticketCode ? ticket.ticketCode : '--';
+                const newDeskNumber = ticket && ticket.serviceDesk && ticket.serviceDesk.deskNumber ? ticket.serviceDesk.deskNumber : '--';
+
+                mainTurnoCode.textContent = newTicketCode;
+                mainDeskNumber.textContent = newDeskNumber;
+
+                // Re-trigger animación
+                activeCallCard.classList.remove('calling-effect');
+                void activeCallCard.offsetWidth;
+                activeCallCard.classList.add('calling-effect');
+
+                // Anunciar con delay
+                setTimeout(() => {
+                    anunciarTurno(newTicketCode, newDeskNumber);
+                }, 300);
+
+            } catch (e) {
+                console.error('❌ Error manejando ReceiveNewCall:', e);
+            }
+        });
+
+        // Iniciar conexión
+        async function startConnection(attempt = 0) {
+            try {
+                await connection.start();
+                console.log('✅ Conectado a SignalR (TurnDisplay)');
+                setConnectionStatus('connected');
+                await loadInitialData();
+            } catch (err) {
+                console.error('❌ Error de conexión:', err);
+                setConnectionStatus('disconnected');
+                const delay = Math.min(10000, 1000 * Math.pow(2, attempt));
+                setTimeout(() => startConnection(attempt + 1), delay);
+            }
+        }
+
+        setConnectionStatus('disconnected');
+        startConnection();
+
+        // Limpieza al salir
+        window.addEventListener('beforeunload', () => {
+            try { speechSynthesis.cancel(); } catch (e) {}
+            try { if (speechTimeout) clearTimeout(speechTimeout); } catch (e) {}
+            try { if (connection) connection.stop(); } catch (e) {}
+            try { if (audioContext && audioContext.close) audioContext.close(); } catch (e) {}
+        });
     });
 </script>
 </body>

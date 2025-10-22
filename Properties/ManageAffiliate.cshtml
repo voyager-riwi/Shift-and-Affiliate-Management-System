@@ -1,0 +1,1254 @@
+@{
+ViewData["Title"] = "Gestión de Afiliados";
+Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - System EPS</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+   <style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1030;
+        background: linear-gradient(180deg, #1a1d29 0%, #0d0f16 100%);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+    }
+
+    .main-content {
+        margin-left: 280px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .affiliate-card {
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+
+    .affiliate-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 4px;
+    }
+
+    .avatar-lg {
+        width: 80px;
+        height: 80px;
+        border: 4px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    #qr-reader-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+    }
+
+    #qr-reader-container.show {
+        max-height: 500px;
+    }
+
+    .nav-link.active {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        font-weight: 600;
+    }
+
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-gradient-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        color: white;
+    }
+
+    .badge-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    @@media (max-width: 991px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        .main-content {
+            margin-left: 0;
+        }
+    }
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sidebar text-white p-4 d-none d-lg-flex flex-column">
+    <div class="border-bottom border-secondary pb-4 mb-4">
+        <h3 class="fw-bold m-0">
+            <i class="fas fa-heartbeat text-info me-2"></i>
+            <span class="text-gradient">System EPS</span>
+        </h3>
+        <p class="text-white-50 small mb-0 mt-1">Sistema de Gestión Afiliados VOYAGER</p>
+    </div>
+
+    <nav class="flex-grow-1">
+        <h6 class="text-uppercase text-white-50 small mb-3 px-3">Módulos</h6>
+        <a href="@Url.Action("Dashboard", "Home")" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-3">
+            <i class="fas fa-desktop me-3 text-success"></i> Panel de Control
+        </a>
+        <a href="@Url.Action("ManageAffiliate", "Home")" class="nav-link active rounded-3 mb-2 px-3 py-3">
+            <i class="fas fa-user-plus me-3"></i> Gestión de Afiliados
+        </a>
+
+        <h6 class="text-uppercase text-white-50 small mt-4 mb-3 px-3">Visualización</h6>
+        <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-3">
+            <i class="fas fa-tablet-alt me-3 text-info"></i> Kiosko de Turnos
+        </a>
+        <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-3">
+            <i class="fas fa-tv me-3 text-danger"></i> Pantalla de Llamadas
+        </a>
+    </nav>
+
+    <div class="border-top border-secondary pt-3 text-center">
+        <p class="text-white-50 small mb-0">© @DateTime.Now.Year Salud Linux</p>
+    </div>
+</aside>
+
+<!-- OFFCANVAS PARA MÓVIL -->
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMobile">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title fw-bold">
+            <i class="fas fa-heartbeat text-info me-2"></i> System EPS
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <nav>
+            <a href="@Url.Action("Dashboard", "Home")" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-2">
+                <i class="fas fa-desktop me-3"></i> Panel de Control
+            </a>
+            <a href="@Url.Action("ManageAffiliate", "Home")" class="nav-link active rounded-3 mb-2 px-3 py-2">
+                <i class="fas fa-user-plus me-3"></i> Gestión de Afiliados
+            </a>
+            <a href="@Url.Action("Kiosk", "Home")" target="_blank" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-2">
+                <i class="fas fa-tablet-alt me-3"></i> Kiosko de Turnos
+            </a>
+            <a href="@Url.Action("TurnDisplay", "Home")" target="_blank" class="nav-link text-white-50 rounded-3 mb-2 px-3 py-2">
+                <i class="fas fa-tv me-3"></i> Pantalla de Llamadas
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<main class="main-content">
+    <div class="container-fluid p-4">
+
+    <!-- HEADER -->
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-lg-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            Gestión de Afiliados
+                        </h1>
+                        <p class="text-muted mb-0 small">Administra toda la información de los afiliados</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 flex-wrap">
+                    <button id="btnNuevoAfiliado" class="btn btn-success btn-lg shadow-sm">
+                        <i class="fas fa-plus-circle me-2"></i> Nuevo Afiliado
+                    </button>
+                    <button id="btnEscanearQR" class="btn btn-gradient-primary btn-lg shadow-sm">
+                        <i class="fas fa-qrcode me-2"></i> Escanear QR
+                    </button>
+                </div>
+            </div>
+            
+            <!-- NUEVO: BÚSQUEDA POR DOCUMENTO -->
+            <div class="row mt-4">
+                <div class="col-lg-6 mx-auto">
+                    <div class="input-group input-group-lg shadow-sm">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" id="searchDocumentInput" class="form-control border-start-0" placeholder="Buscar por número de documento..." aria-label="Buscar por documento">
+                        <button class="btn btn-primary" type="button" id="btnBuscarDocumento">
+                            <i class="fas fa-search me-2"></i> Buscar
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle me-1"></i> Ingrese el número de documento y presione Buscar
+                    </small>
+                </div>
+            </div>
+            
+            <!-- CONTENEDOR DEL ESCÁNER QR -->
+            <div id="qr-reader-container" class="mt-3">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Enfoca el código QR del carnet del afiliado
+                </div>
+                <div id="qr-reader" class="border border-3 border-primary rounded p-3 bg-light mx-auto" style="max-width: 500px;"></div>
+            </div>
+        </div>
+    </div>
+
+        <!-- MENSAJES -->
+        <div id="messageBox"></div>
+
+        <!-- LISTA DE AFILIADOS -->
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-list me-2 text-primary"></i>
+                        Afiliados Registrados
+                    </h5>
+                    <span id="contadorAfiliados" class="badge badge-gradient fs-6 px-3 py-2"></span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <!-- LOADING -->
+                <div id="loadingSpinner" class="text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-3 fw-semibold">Cargando afiliados...</p>
+                </div>
+
+                <!-- GRID DE AFILIADOS -->
+                <div id="affiliatesList" class="row g-4"></div>
+
+                <!-- SIN AFILIADOS -->
+                <div id="noAffiliates" class="text-center py-5 d-none">
+                    <i class="fas fa-user-slash text-muted mb-3" style="font-size: 5rem;"></i>
+                    <h4 class="text-muted">No hay afiliados registrados</h4>
+                    <p class="text-muted">Comienza registrando el primer afiliado</p>
+                    <button onclick="document.getElementById('btnNuevoAfiliado').click()" class="btn btn-success btn-lg mt-3">
+                        <i class="fas fa-plus-circle me-2"></i> Registrar Primer Afiliado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL FORMULARIO -->
+<div class="modal fade" id="modalFormulario" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title fw-bold" id="modalTitle">
+                    <i class="fas fa-user-plus me-2"></i> Nuevo Afiliado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="affiliateForm">
+                    <input type="hidden" id="affiliateId">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <h5 class="border-bottom pb-3 mb-4">
+                                <i class="fas fa-id-card text-primary me-2"></i> Datos Personales
+                            </h5>
+                            <div class="mb-3">
+                                <label for="fullName" class="form-label fw-semibold">
+                                    Nombre Completo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="fullName" required class="form-control form-control-lg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="documentId" class="form-label fw-semibold">
+                                    Documento de Identidad <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="documentId" required class="form-control form-control-lg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+                                <input type="email" id="email" class="form-control form-control-lg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label fw-semibold">Teléfono</label>
+                                <input type="tel" id="phoneNumber" class="form-control form-control-lg">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h5 class="border-bottom pb-3 mb-4">
+                                <i class="fas fa-camera text-primary me-2"></i> Foto Facial <span class="text-danger">*</span>
+                            </h5>
+                            <div class="bg-light p-4 rounded-3 text-center">
+                                <video id="video" width="320" height="240" autoplay class="img-fluid rounded shadow-sm bg-dark mb-3"></video>
+                                <button type="button" id="captureButton" class="btn btn-gradient-primary btn-lg rounded-pill shadow">
+                                    <i class="fas fa-camera me-2"></i> Capturar Foto
+                                </button>
+                                <hr class="my-4">
+                                <h6 class="fw-semibold text-muted mb-3">Vista Previa:</h6>
+                                <img id="preview" width="320" height="240" class="img-fluid rounded border border-3 shadow-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i> Cancelar
+                </button>
+                <button type="button" id="btnActualizar" class="btn btn-primary btn-lg d-none">
+                    <i class="fas fa-save me-2"></i> Actualizar
+                </button>
+                <button type="button" id="btnCrear" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-2"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CARNET -->
+<div class="modal fade" id="modalCarnet" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-id-card me-2"></i> Carnet del Afiliado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="carnetContent"></div>
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <button id="btnPrintCarnet" class="btn btn-dark btn-lg">
+                    <i class="fas fa-print me-2"></i> Imprimir
+                </button>
+                <button id="btnDownloadCarnet" class="btn btn-primary btn-lg">
+                    <i class="fas fa-download me-2"></i> Descargar PNG
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="canvas" width="320" height="240" class="d-none"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ========================================
+    // INSTANCIAS DE BOOTSTRAP
+    // ========================================
+    const formModalEl = document.getElementById('modalFormulario');
+    const formModal = new bootstrap.Modal(formModalEl);
+    
+    const carnetModalEl = document.getElementById('modalCarnet');
+    const carnetModal = new bootstrap.Modal(carnetModalEl);
+    
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    const modalTitle = document.getElementById('modalTitle');
+    const affiliateForm = document.getElementById('affiliateForm');
+    const affiliatesList = document.getElementById('affiliatesList');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const noAffiliates = document.getElementById('noAffiliates');
+    const messageBox = document.getElementById('messageBox');
+    const qrReaderContainer = document.getElementById('qr-reader-container');
+    const contadorAfiliados = document.getElementById('contadorAfiliados');
+    const btnNuevoAfiliado = document.getElementById('btnNuevoAfiliado');
+    const btnEscanearQR = document.getElementById('btnEscanearQR');
+    const btnBuscarDocumento = document.getElementById('btnBuscarDocumento');
+    const searchDocumentInput = document.getElementById('searchDocumentInput');
+    const btnCrear = document.getElementById('btnCrear');
+    const btnActualizar = document.getElementById('btnActualizar');
+    const affiliateIdInput = document.getElementById('affiliateId');
+    const fullNameInput = document.getElementById('fullName');
+    const documentIdInput = document.getElementById('documentId');
+    const emailInput = document.getElementById('email');
+    const phoneNumberInput = document.getElementById('phoneNumber');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+    const captureButton = document.getElementById('captureButton');
+    const btnPrintCarnet = document.getElementById('btnPrintCarnet');
+    const btnDownloadCarnet = document.getElementById('btnDownloadCarnet');
+    const carnetContent = document.getElementById('carnetContent');
+    
+    let photoBase64 = null;
+    let videoStream = null;
+    let html5QrCode = null;
+    let currentAffiliateData = null;
+    let isEditMode = false;
+    let cameraAvailable = false;
+    
+    // ========================================
+    // FUNCIONES DE UTILIDAD
+    // ========================================
+    
+    function showMessage(message, type = 'info', duration = 5000) {
+        const alertType = { success: 'success', error: 'danger', warning: 'warning', info: 'info' }[type] || 'info';
+        const icon = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' }[type] || 'info-circle';
+        
+        const alertHTML = `
+            <div class="alert alert-${alertType} alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-${icon} me-2"></i>
+                <strong>${message}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        messageBox.innerHTML = alertHTML;
+        
+        setTimeout(() => {
+            const alert = messageBox.querySelector('.alert');
+            if (alert) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }
+        }, duration);
+    }
+    
+    function addLoader(button, text = 'Cargando...') {
+        button.disabled = true;
+        button.dataset.originalText = button.innerHTML;
+        button.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            ${text}
+        `;
+    }
+    
+    function removeLoader(button) {
+        button.disabled = false;
+        button.innerHTML = button.dataset.originalText || button.innerHTML;
+    }
+    
+    // ========================================
+    // RENDERIZADO DE AFILIADOS
+    // ========================================
+    
+    function renderAffiliateCard(affiliate) {
+        const photoSrc = affiliate.photoBase64 || 'https://via.placeholder.com/150?text=Sin+Foto';
+        const safeName = (affiliate.fullName || '').replace(/'/g, "\\'");
+        
+        return `
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card h-100 shadow affiliate-card">
+                    <div class="card-gradient"></div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="${photoSrc}" alt="Foto" class="rounded-circle avatar-lg me-3">
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <h5 class="card-title fw-bold mb-1 text-truncate">${affiliate.fullName}</h5>
+                                <p class="card-text small text-muted mb-0">
+                                    <i class="fas fa-id-badge me-1"></i> ID: ${affiliate.id}
+                                </p>
+                                <p class="card-text small text-muted mb-0 text-truncate">
+                                    <i class="fas fa-id-card me-1"></i> ${affiliate.documentId}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        ${affiliate.email || affiliate.phoneNumber ? '<hr class="my-2">' : ''}
+                        
+                        ${affiliate.email ? `
+                        <p class="card-text small text-truncate mb-1">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-truncate">${affiliate.email}</span>
+                        </p>` : ''}
+                        
+                        ${affiliate.phoneNumber ? `
+                        <p class="card-text small mb-0">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            ${affiliate.phoneNumber}
+                        </p>` : ''}
+                    </div>
+                    <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                        <div class="d-grid gap-2">
+                            <div class="btn-group" role="group">
+                                <button onclick="editarAfiliado(${affiliate.id})" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button onclick="mostrarCarnetById(${affiliate.id})" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-id-card"></i> Carnet
+                                </button>
+                                <button onclick="eliminarAfiliado(${affiliate.id}, '${safeName}')" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    async function cargarTodosLosAfiliados() {
+        try {
+            loadingSpinner.classList.remove('d-none');
+            affiliatesList.classList.add('d-none');
+            noAffiliates.classList.add('d-none');
+            
+            const response = await fetch('/api/Affiliates');
+            if (!response.ok) throw new Error('Error al cargar afiliados');
+            
+            const affiliates = await response.json();
+            
+            loadingSpinner.classList.add('d-none');
+            
+            if (affiliates.length === 0) {
+                noAffiliates.classList.remove('d-none');
+                contadorAfiliados.textContent = '0 Afiliados';
+            } else {
+                affiliatesList.innerHTML = affiliates.map(aff => renderAffiliateCard(aff)).join('');
+                affiliatesList.classList.remove('d-none');
+                contadorAfiliados.innerHTML = `<i class="fas fa-users me-2"></i>${affiliates.length} Afiliado${affiliates.length !== 1 ? 's' : ''}`;
+            }
+            
+            console.log(`✅ ${affiliates.length} afiliados cargados`);
+        } catch (error) {
+            console.error('❌ Error:', error);
+            loadingSpinner.classList.add('d-none');
+            showMessage('Error al cargar la lista de afiliados', 'error');
+        }
+    }
+    
+    // ========================================
+    // GESTIÓN DEL MODAL
+    // ========================================
+    
+    function abrirModal(modoEdicion = false) {
+        isEditMode = modoEdicion;
+        
+        if (modoEdicion) {
+            modalTitle.innerHTML = '<i class="fas fa-edit me-2"></i> Editar Afiliado';
+            btnCrear.classList.add('d-none');
+            btnActualizar.classList.remove('d-none');
+        } else {
+            modalTitle.innerHTML = '<i class="fas fa-user-plus me-2"></i> Nuevo Afiliado';
+            btnCrear.classList.remove('d-none');
+            btnActualizar.classList.add('d-none');
+            limpiarFormulario();
+        }
+        
+        formModal.show();
+    }
+    
+    function cerrarModal() {
+        formModal.hide();
+        limpiarFormulario();
+    }
+    
+    function limpiarFormulario() {
+        affiliateForm.reset();
+        affiliateIdInput.value = '';
+        preview.src = '';
+        photoBase64 = null;
+        currentAffiliateData = null;
+        isEditMode = false;
+    }
+    
+    // CÁMARA 
+    
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            videoStream = stream;
+            video.srcObject = stream;
+            cameraAvailable = true;
+            console.log('✅ Cámara activada');
+        })
+        .catch(err => {
+            console.warn('⚠️ Cámara no disponible:', err);
+            cameraAvailable = false;
+            video.style.display = 'none';
+            captureButton.disabled = true;
+            captureButton.innerHTML = '<i class="fas fa-camera-slash me-2"></i> Cámara no disponible';
+            captureButton.classList.add('btn-secondary');
+            captureButton.classList.remove('btn-gradient-primary');
+            
+            const videoContainer = video.closest('.bg-light');
+            if (videoContainer) {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'alert alert-warning mb-3';
+                warningDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> <strong>Cámara no disponible.</strong> Puede cargar una foto existente o agregar la foto después.';
+                videoContainer.insertBefore(warningDiv, video);
+            }
+        });
+    
+    captureButton.addEventListener('click', () => {
+        if (!cameraAvailable) {
+            showMessage('La cámara no está disponible en este dispositivo', 'warning');
+            return;
+        }
+        
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/png');
+        preview.src = dataUrl;
+        photoBase64 = dataUrl;
+        showMessage('Foto capturada correctamente', 'success', 2000);
+    });
+    
+    // ========================================
+    // BÚSQUEDA POR DOCUMENTO
+    // ========================================
+    
+    async function buscarPorDocumentoInput() {
+        const documentId = searchDocumentInput.value.trim();
+        
+        if (!documentId) {
+            showMessage('Por favor ingrese un número de documento', 'warning');
+            searchDocumentInput.focus();
+            return;
+        }
+        
+        addLoader(btnBuscarDocumento, 'Buscando...');
+        
+        try {
+            await buscarPorDocumento(documentId);
+            searchDocumentInput.value = ''; // Limpiar campo
+        } catch(error) {
+            showMessage(`No se encontró ningún afiliado con documento: ${documentId}`, 'error');
+        } finally {
+            removeLoader(btnBuscarDocumento);
+        }
+    }
+    
+    btnBuscarDocumento.addEventListener('click', buscarPorDocumentoInput);
+    
+    searchDocumentInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarPorDocumentoInput();
+        }
+    });
+    
+    // ========================================
+    // ESCÁNER QR
+    // ========================================
+    
+    btnEscanearQR.addEventListener('click', async () => {
+        if (typeof Html5Qrcode === 'undefined') {
+            showMessage('El escáner QR no está disponible. Use la búsqueda por documento.', 'warning');
+            return;
+        }
+        
+        if (html5QrCode && html5QrCode.isScanning) {
+            await html5QrCode.stop();
+            qrReaderContainer.classList.remove('show');
+            btnEscanearQR.innerHTML = '<i class="fas fa-qrcode me-2"></i> Escanear QR';
+            html5QrCode = null;
+            return;
+        }
+        
+        qrReaderContainer.classList.add('show');
+        html5QrCode = new Html5Qrcode("qr-reader");
+
+        const onScanSuccess = async (decodedText) => {
+            console.log('📱 QR escaneado:', decodedText);
+
+            let documentId = decodedText.trim();
+            
+            // Esta es la lógica principal y debe tener prioridad.
+            try {
+                const url = new URL(decodedText);
+                const docParam = url.searchParams.get('doc');
+                // Si encuentra el parámetro 'doc', usa ese valor y la lógica termina aquí para la extracción.
+                if (docParam) {
+                    documentId = docParam;
+                }
+            } catch (e) {
+                // Si el texto no es una URL válida, lo tratamos como texto plano.
+                // Si contiene '/', asumimos que el ID es la última parte (útil para rutas).
+                if (documentId.includes('/')) {
+                    const parts = documentId.split('/');
+                    documentId = parts[parts.length - 1];
+                }
+                console.warn('No es una URL válida, se procesó como texto plano.');
+            }
+
+            console.log('🔍 Documento extraído:', documentId);
+
+            try {
+                // Buscamos el afiliado con el ID ya corregido.
+                await buscarPorDocumento(documentId);
+
+                // Si tiene éxito, detenemos el escáner.
+                if (html5QrCode && html5QrCode.isScanning) {
+                    await html5QrCode.stop();
+                    qrReaderContainer.classList.remove('show');
+                    btnEscanearQR.innerHTML = '<i class="fas fa-qrcode me-2"></i> Escanear QR';
+                    html5QrCode = null;
+                }
+            } catch(error) {
+                // Si falla la búsqueda, mostramos el error y el escáner sigue activo.
+                showMessage(`No se encontró afiliado con documento: ${documentId}`, 'error');
+            }
+        };
+        
+        try {
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 300, height: 300 } },
+                onScanSuccess,
+                () => {}
+            );
+            
+            btnEscanearQR.innerHTML = '<i class="fas fa-stop-circle me-2"></i> Detener Escáner';
+            showMessage('Escáner QR activo', 'info', 3000);
+        } catch(err) {
+            console.error('Error al iniciar escáner:', err);
+            qrReaderContainer.classList.remove('show');
+            showMessage('No se pudo iniciar el escáner. Use la búsqueda por documento.', 'error');
+        }
+    });
+    
+    // ========================================
+    // BUSCAR POR DOCUMENTO
+    // ========================================
+    
+    async function buscarPorDocumento(documentId) {
+        try {
+            console.log('🔍 Buscando afiliado con documento:', documentId);
+            
+            const response = await fetch(`/api/Affiliates/ByDocument/${encodeURIComponent(documentId)}`);
+            
+            if (response.status === 404) {
+                throw new Error('Afiliado no encontrado');
+            }
+            
+            if (!response.ok) {
+                throw new Error('Error al buscar');
+            }
+            
+            const affiliate = await response.json();
+            console.log('✅ Afiliado encontrado:', affiliate);
+            
+            affiliateIdInput.value = affiliate.id;
+            fullNameInput.value = affiliate.fullName;
+            documentIdInput.value = affiliate.documentId;
+            emailInput.value = affiliate.email || '';
+            phoneNumberInput.value = affiliate.phoneNumber || '';
+            preview.src = affiliate.photoBase64 || '';
+            photoBase64 = affiliate.photoBase64;
+            currentAffiliateData = affiliate;
+            
+            abrirModal(true);
+            showMessage(`✅ Afiliado encontrado: ${affiliate.fullName}`, 'success');
+        } catch (error) {
+            console.error('❌ Error:', error);
+            throw error;
+        }
+    }
+    
+    // ========================================
+    // CRUD - CARGAR
+    // ========================================
+    
+    async function cargarAfiliado(id) {
+        try {
+            const response = await fetch(`/api/Affiliates/${id}`);
+            if (!response.ok) throw new Error('Afiliado no encontrado');
+            
+            const affiliate = await response.json();
+            
+            affiliateIdInput.value = affiliate.id;
+            fullNameInput.value = affiliate.fullName;
+            documentIdInput.value = affiliate.documentId;
+            emailInput.value = affiliate.email || '';
+            phoneNumberInput.value = affiliate.phoneNumber || '';
+            preview.src = affiliate.photoBase64 || '';
+            photoBase64 = affiliate.photoBase64;
+            currentAffiliateData = affiliate;
+            
+            abrirModal(true);
+        } catch (error) {
+            showMessage(error.message, 'error');
+        }
+    }
+    
+    // ========================================
+    // CRUD - GUARDAR
+    // ========================================
+    
+    async function guardarAfiliado() {
+        if (!fullNameInput.value || !documentIdInput.value) {
+            showMessage('Nombre y Documento son obligatorios', 'warning');
+            return;
+        }
+        
+        if (!photoBase64) {
+            if (!confirm('No hay foto capturada. ¿Desea continuar sin foto?')) {
+                return;
+            }
+        }
+        
+        addLoader(btnCrear, 'Guardando...');
+        
+        const affiliateData = {
+            fullName: fullNameInput.value.trim(),
+            documentId: documentIdInput.value.trim(),
+            email: emailInput.value.trim() || null,
+            phoneNumber: phoneNumberInput.value.trim() || null,
+            photoBase64: photoBase64 || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+        };
+        
+        try {
+            const response = await fetch('/api/Affiliates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(affiliateData)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Error al crear');
+            }
+            
+            const nuevoAfiliado = await response.json();
+            
+            showMessage(`Afiliado "${nuevoAfiliado.fullName}" creado exitosamente`, 'success');
+            cerrarModal();
+            cargarTodosLosAfiliados();
+            
+            setTimeout(() => mostrarCarnet(nuevoAfiliado), 500);
+            
+        } catch(error) {
+            showMessage(error.message, 'error');
+        } finally {
+            removeLoader(btnCrear);
+        }
+    }
+    
+    // ========================================
+    // CRUD - ACTUALIZAR
+    // ========================================
+    
+    async function actualizarAfiliado() {
+        const id = affiliateIdInput.value;
+        if (!id || !fullNameInput.value || !documentIdInput.value) {
+            showMessage('Datos incompletos', 'warning');
+            return;
+        }
+        
+        if (!photoBase64 && currentAffiliateData) {
+            photoBase64 = currentAffiliateData.photoBase64;
+        }
+        
+        addLoader(btnActualizar, 'Actualizando...');
+        
+        const affiliateData = {
+            id: parseInt(id),
+            fullName: fullNameInput.value.trim(),
+            documentId: documentIdInput.value.trim(),
+            email: emailInput.value.trim() || null,
+            phoneNumber: phoneNumberInput.value.trim() || null,
+            photoBase64: photoBase64
+        };
+        
+        try {
+            const response = await fetch(`/api/Affiliates/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(affiliateData)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Error al actualizar');
+            }
+            
+            showMessage('Afiliado actualizado exitosamente', 'success');
+            cerrarModal();
+            cargarTodosLosAfiliados();
+            
+        } catch(error) {
+            showMessage(error.message, 'error');
+        } finally {
+            removeLoader(btnActualizar);
+        }
+    }
+    
+    // ========================================
+    // CRUD - ELIMINAR
+    // ========================================
+    
+    window.eliminarAfiliado = async (id, nombre) => {
+        if (!confirm(`¿Eliminar al afiliado "${nombre}"?`)) return;
+        
+        try {
+            const response = await fetch(`/api/Affiliates/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Error al eliminar');
+            
+            showMessage(`Afiliado "${nombre}" eliminado`, 'success');
+            cargarTodosLosAfiliados();
+        } catch(error) {
+            showMessage(error.message, 'error');
+        }
+    };
+    
+    // ========================================
+    // CARNET
+    // ========================================
+    
+    function generarCarnet(affiliate) {
+        return `
+            <div class="carnet-preview mx-auto rounded-4 shadow-lg overflow-hidden" style="width: 450px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="text-center p-4 border-bottom border-white border-opacity-25">
+                    <h2 class="fw-bold mb-1">EPS VOYAGER S.A</h2>
+                    <p class="small mb-0 opacity-75">Entidad Promotora de Salud</p>
+                </div>
+                <div class="p-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <img src="${affiliate.photoBase64 || preview.src}" class="rounded-3" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold mb-2">${affiliate.fullName}</h4>
+                            <p class="mb-1 small"><i class="fas fa-id-card me-2"></i> ${affiliate.documentId}</p>
+                            ${affiliate.email ? `<p class="mb-0 small opacity-75"><i class="fas fa-envelope me-2"></i> ${affiliate.email}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="bg-white text-dark p-3 rounded-3 text-center">
+                        <img id="qrcodeImg" class="mb-2" style="width: 140px; height: 140px;">
+                        <p class="small fw-semibold mb-0">Doc: ${affiliate.documentId}</p>
+                    </div>
+                    <div class="text-center mt-3">
+                        <p class="small mb-0 opacity-75"><i class="fas fa-calendar me-2"></i> ${new Date().toLocaleDateString('es-CO')}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function mostrarCarnet(affiliate) {
+        carnetContent.innerHTML = generarCarnet(affiliate);
+        const qrImg = document.getElementById('qrcodeImg');
+        const qrUrl = `${window.location.origin}/Home/ManageAffiliate?doc=${affiliate.documentId}`;
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(qrUrl)}`;
+        
+        currentAffiliateData = affiliate;
+        carnetModal.show();
+    }
+    
+    window.mostrarCarnetById = async (id) => {
+        try {
+            const response = await fetch(`/api/Affiliates/${id}`);
+            if (!response.ok) throw new Error('Error');
+            const affiliate = await response.json();
+            mostrarCarnet(affiliate);
+        } catch(error) {
+            showMessage('Error al mostrar el carnet', 'error');
+        }
+    };
+    
+    window.editarAfiliado = cargarAfiliado;
+
+    btnPrintCarnet.addEventListener('click', () => {
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+        const carnetHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Carnet - ${currentAffiliateData.fullName}</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Inter', Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    background: #f0f0f0;
+                    padding: 20px;
+                }
+                
+                .carnet-print {
+                    width: 450px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                }
+                
+                .carnet-header {
+                    text-align: center;
+                    padding: 24px;
+                    border-bottom: 1px solid rgba(255,255,255,0.25);
+                }
+                
+                .carnet-header h2 {
+                    font-size: 24px;
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                }
+                
+                .carnet-header p {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                .carnet-body {
+                    padding: 24px;
+                }
+                
+                .carnet-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    margin-bottom: 24px;
+                }
+                
+                .carnet-photo {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 12px;
+                    object-fit: cover;
+                    border: 4px solid white;
+                    flex-shrink: 0;
+                }
+                
+                .carnet-details h4 {
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin-bottom: 12px;
+                }
+                
+                .carnet-details p {
+                    font-size: 13px;
+                    margin-bottom: 6px;
+                }
+                
+                .carnet-details small {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                .carnet-qr {
+                    background: white;
+                    padding: 16px;
+                    border-radius: 12px;
+                    text-align: center;
+                }
+                
+                .carnet-qr img {
+                    width: 140px;
+                    height: 140px;
+                    margin-bottom: 8px;
+                }
+                
+                .carnet-qr p {
+                    color: #333;
+                    font-size: 13px;
+                    font-weight: 600;
+                    margin: 0;
+                }
+                
+                .carnet-footer {
+                    text-align: center;
+                    margin-top: 16px;
+                    padding-top: 16px;
+                    border-top: 1px solid rgba(255,255,255,0.25);
+                }
+                
+                .carnet-footer p {
+                    font-size: 12px;
+                    opacity: 0.75;
+                }
+                
+                @@media print {
+                    body {
+                        background: white !important;
+                        padding: 0;
+                    }
+                    
+                    .carnet-print {
+                        box-shadow: none;
+                        page-break-inside: avoid;
+                        background: white !important;
+                        border: 3px solid #000;
+                    }
+                    
+                    /* ✅ TODO EL TEXTO EN NEGRO OSCURO */
+                    .carnet-header h2,
+                    .carnet-header p,
+                    .carnet-details h4,
+                    .carnet-details p,
+                    .carnet-details small,
+                    .carnet-footer p {
+                        color: #000 !important;
+                        opacity: 1 !important;
+                        font-weight: 900 !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    
+                    .carnet-photo {
+                        border: 4px solid #000 !important;
+                    }
+                    
+                    .carnet-header {
+                        border-bottom: 3px solid #000 !important;
+                    }
+                    
+                    .carnet-footer {
+                        border-top: 3px solid #000 !important;
+                    }
+                    
+                    .carnet-qr {
+                        background: white !important;
+                        border: 2px solid #000 !important;
+                    }
+                    
+                    .carnet-qr p {
+                        color: #000 !important;
+                        font-weight: 900 !important;
+                    }
+                }
+                
+                @@page {
+                    size: auto;
+                    margin: 10mm;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="carnet-print">
+                <div class="carnet-header">
+                    <h2>SALUD LINUX EPS</h2>
+                    <p>Entidad Promotora de Salud</p>
+                </div>
+                <div class="carnet-body">
+                    <div class="carnet-info">
+                        <img src="${currentAffiliateData.photoBase64 || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='}" 
+                             alt="Foto" class="carnet-photo">
+                        <div class="carnet-details">
+                            <h4>${currentAffiliateData.fullName}</h4>
+                            <p>📋 ${currentAffiliateData.documentId}</p>
+                            ${currentAffiliateData.email ? `<small>📧 ${currentAffiliateData.email}</small>` : ''}
+                        </div>
+                    </div>
+                    <div class="carnet-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(window.location.origin + '/Home/ManageAffiliate?doc=' + currentAffiliateData.documentId)}" 
+                             alt="QR Code" crossorigin="anonymous">
+                        <p>Doc: ${currentAffiliateData.documentId}</p>
+                    </div>
+                    <div class="carnet-footer">
+                        <p>📅 Generado: ${new Date().toLocaleDateString('es-CO')}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `;
+
+        printWindow.document.write(carnetHTML);
+        printWindow.document.close();
+    });
+
+    btnDownloadCarnet.addEventListener('click', async () => {
+        try {
+            addLoader(btnDownloadCarnet, 'Generando...');
+
+            const carnetElement = document.querySelector('.carnet-preview');
+            const qrImg = document.getElementById('qrcodeImg');
+
+            // Esperar a que el QR esté completamente cargado
+            if (!qrImg.complete) {
+                showMessage('⏳ Cargando código QR...', 'info', 2000);
+                await new Promise((resolve, reject) => {
+                    qrImg.onload = resolve;
+                    qrImg.onerror = reject;
+                    setTimeout(resolve, 5000); // timeout de seguridad
+                });
+            }
+
+            // Pequeña pausa adicional para asegurar renderizado
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Capturar con configuración optimizada para QR externo
+            const canvasCarnet = await html2canvas(carnetElement, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false,
+                imageTimeout: 15000,
+                removeContainer: false
+            });
+
+            const link = document.createElement('a');
+            link.download = `carnet_${currentAffiliateData.documentId}_${Date.now()}.png`;
+            link.href = canvasCarnet.toDataURL('image/png');
+            link.click();
+
+            showMessage('✅ Carnet descargado con QR incluido', 'success', 2000);
+        } catch(error) {
+            console.error('Error al descargar:', error);
+            showMessage('❌ Error al descargar. Intente de nuevo.', 'error');
+        } finally {
+            removeLoader(btnDownloadCarnet);
+        }
+    });
+    
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    
+    btnNuevoAfiliado.addEventListener('click', () => abrirModal(false));
+    btnCrear.addEventListener('click', guardarAfiliado);
+    btnActualizar.addEventListener('click', actualizarAfiliado);
+    
+    formModalEl.addEventListener('hidden.bs.modal', limpiarFormulario);
+    
+    // ========================================
+    // INICIALIZACIÓN
+    // ========================================
+    
+    cargarTodosLosAfiliados();
+    showMessage('Sistema cargado correctamente', 'success', 3000);
+});
+</script>
+
+</body>
+</html>
